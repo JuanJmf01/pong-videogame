@@ -87,28 +87,78 @@ int main()
      */
     max_fd = server_socket;
     int clientesAdd = 0;
-    
+
     while (1)
     {
         fd_set temp_fds = read_fds;
-        /**Select monitorea los descriptores de archivos (sockets) en busca de eventos de lectura, es decir,
-         * select comprueba si hay datos disponibles para ser leidos en los sockets especificados en 'read_fds.'
-         * Si un socket esta listo para la lectura significa que hay datos pendientes en ese socket y select notificara al programa
-         * para que permita realizar la operacion y no la bloquee
-         * */
+
         if (select(max_fd + 1, &temp_fds, NULL, NULL, NULL) == -1)
         {
             perror("Error en select");
             exit(1);
         }
 
+        // Verificar si hay datos disponibles para leer en los sockets
         for (int i = 0; i <= max_fd; i++)
         {
-            if (FD_ISSET(i, &temp_fds))
+            if (FD_ISSET(server_socket, &temp_fds) && clientesAdd < 2)
             {
-                if (i == server_socket)
+                struct sockaddr_in client_addr;
+                socklen_t addr_size = sizeof(client_addr);
+                char verification_message[1024];
+                ssize_t bytesConfirmacion = recvfrom(server_socket, verification_message, sizeof(verification_message), 0, (struct sockaddr *)&client_addr, &addr_size);
+
+                if (bytesConfirmacion == -1)
                 {
+                    perror("Error al recibir datos");
+                    continue;
+                }
+                printf("MENSAJE ANTES: %s \n", verification_message);
+                if (strcmp(verification_message, "clientConnect") != 0)
+                {
+                    printf("Mensaje del cliente: %s\n", verification_message);
                     // Nuevo cliente
+
+                    char client_ip[INET_ADDRSTRLEN]; // Variable para almacenar la direccion IP como una cadena
+                    int client_port;                 // Variable para almacenar el puerto
+
+                    // Obten la direccion IP y el puerto
+                    inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
+                    client_port = ntohs(client_addr.sin_port);
+
+                    int free_slot = -1;
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (clients[i].socket == -1)
+                        {
+                            free_slot = i;
+                            break;
+                        }
+                    }
+
+                    if (free_slot != -1)
+                    {
+                        // Guardar informacion del nuevo cliente en el arreglo clients
+                        clients[free_slot].socket = server_socket;
+                        clients[free_slot].client_port = client_port;
+                        printf("PUERTO: %d", client_port);
+                        printf("IP: %d", server_socket);
+                        clientesAdd++;
+                        printf("Cliente agregado: %d \n", clientesAdd);
+                    }
+                }
+            }
+        }
+
+        // Verificar si ya se han conectado dos clientes
+        if (clientesAdd == 2)
+        {
+            printf("Estoy listo para recibir mensajes\n");
+
+            for (int i = 0; i <= max_fd; i++)
+            {
+                if (FD_ISSET(i, &temp_fds) && i == server_socket)
+                {
                     struct sockaddr_in client_addr;
                     socklen_t addr_size = sizeof(client_addr);
                     char buffer[1024];
@@ -119,68 +169,120 @@ int main()
                     {
                         perror("Error al recibir los datos");
                     }
-                    else
+
+                    buffer[bytes_received] = '\0';
+
+                    for (int i = 0; i < 2; i++)
                     {
-                        buffer[bytes_received] = '\0';
+                        printf("Mostrar informacion de los clientes: ");
+                        int puertoCliente = clients[i].client_port;
+                        //printf("%d \n", puertoCliente);
 
-                        char client_ip[INET_ADDRSTRLEN]; // Variable para almacenar la direccion IP como una cadena
-                        int client_port;                 // Variable para almacenar el puerto
+                        client_addr.sin_family = AF_UNSPEC;
+                        client_addr.sin_port = htons(puertoCliente);
+                        inet_pton(AF_UNSPEC, "localhost", &(client_addr.sin_addr));
 
-                        // Obten la direccion IP y el puerto
-                        inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
-                        client_port = ntohs(client_addr.sin_port);
-
-                        int free_slot = -1;
-                        for (int i = 0; i < 2; i++)
-                        {
-                            if (clients[i].socket == -1)
-                            {
-                                free_slot = i;
-                                break;
-                            }
-                        }
-
-                        if (free_slot != -1)
-                        {
-                            // Guardar informacion del nuevo cliente en el arreglo clients
-                            clients[free_slot].socket = i;
-                            clients[free_slot].client_port = client_port;
-                            clientesAdd++;
-                            // printf("Cliente agregado: %d \n", clientesAdd);
-                        }
-
-                        if (clientesAdd == 2)
-                        {
-                            for (int i = 0; i < 2; i++)
-                            {
-                                printf("Mostrar informacion de los clientes: ");
-                                int puertoCliente = clients[i].client_port;
-                                printf("%d \n", puertoCliente);
-
-                                int client_socket = i;
-                                client_addr.sin_family = AF_UNSPEC;
-                                client_addr.sin_port = htons(puertoCliente);
-                                inet_pton(AF_UNSPEC, "localhost", &(client_addr.sin_addr));
-
-                                sendto(server_socket, buffer, 8, 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
-                            }
-                        }
-
-                        // Imprime la información en variables separadas
-                        printf("Cliente %s : %d dice: %s\n", client_ip, client_port, buffer);
-
-                        if (strncmp(buffer, "apagar", 6) == 0)
-                        {
-                            close(server_socket);
-                            exit(0);
-                        }
+                        sendto(server_socket, buffer, 8, 0, (struct sockaddr *)&client_addr, sizeof(client_addr)); // Imprime la información en variables separadas
+                        printf("Cliente %d dice: %s\n", puertoCliente, buffer);
                     }
                 }
             }
         }
-
-        // Aqui teniamos el recv para recibir mensajes de un cliente
     }
+
+    // while (1)
+    // {
+    //     fd_set temp_fds = read_fds;
+    //     /**Select monitorea los descriptores de archivos (sockets) en busca de eventos de lectura, es decir,
+    //      * select comprueba si hay datos disponibles para ser leidos en los sockets especificados en 'read_fds.'
+    //      * Si un socket esta listo para la lectura significa que hay datos pendientes en ese socket y select notificara al programa
+    //      * para que permita realizar la operacion y no la bloquee
+    //      * */
+    //     if (select(max_fd + 1, &temp_fds, NULL, NULL, NULL) == -1)
+    //     {
+    //         perror("Error en select");
+    //         exit(1);
+    //     }
+
+    //     for (int i = 0; i <= max_fd; i++)
+    //     {
+    //         if (FD_ISSET(i, &temp_fds))
+    //         {
+    //             if (i == server_socket)
+    //             {
+    //                 // Nuevo cliente
+    //                 struct sockaddr_in client_addr;
+    //                 socklen_t addr_size = sizeof(client_addr);
+    //                 char buffer[1024];
+    //                 ssize_t bytes_received;
+
+    //                 bytes_received = recvfrom(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &addr_size);
+    //                 if (bytes_received <= 0)
+    //                 {
+    //                     perror("Error al recibir los datos");
+    //                 }
+    //                 else
+    //                 {
+    //                     buffer[bytes_received] = '\0';
+
+    //                     char client_ip[INET_ADDRSTRLEN]; // Variable para almacenar la direccion IP como una cadena
+    //                     int client_port;                 // Variable para almacenar el puerto
+
+    //                     // Obten la direccion IP y el puerto
+    //                     inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
+    //                     client_port = ntohs(client_addr.sin_port);
+
+    //                     int free_slot = -1;
+    //                     for (int i = 0; i < 2; i++)
+    //                     {
+    //                         if (clients[i].socket == -1)
+    //                         {
+    //                             free_slot = i;
+    //                             break;
+    //                         }
+    //                     }
+
+    //                     if (free_slot != -1)
+    //                     {
+    //                         // Guardar informacion del nuevo cliente en el arreglo clients
+    //                         clients[free_slot].socket = i;
+    //                         clients[free_slot].client_port = client_port;
+    //                         clientesAdd++;
+    //                         // printf("Cliente agregado: %d \n", clientesAdd);
+    //                     }
+
+    //                     if (clientesAdd == 2)
+    //                     {
+    //                         for (int i = 0; i < 2; i++)
+    //                         {
+    //                             printf("Mostrar informacion de los clientes: ");
+    //                             int puertoCliente = clients[i].client_port;
+    //                             printf("%d \n", puertoCliente);
+
+    //                             int client_socket = i;
+    //                             client_addr.sin_family = AF_UNSPEC;
+    //                             client_addr.sin_port = htons(puertoCliente);
+    //                             inet_pton(AF_UNSPEC, "localhost", &(client_addr.sin_addr));
+
+    //                             sendto(server_socket, buffer, 8, 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
+    //                         }
+    //                     }
+
+    //                     // Imprime la información en variables separadas
+    //                     printf("Cliente %s : %d dice: %s\n", client_ip, client_port, buffer);
+
+    //                     if (strncmp(buffer, "apagar", 6) == 0)
+    //                     {
+    //                         close(server_socket);
+    //                         exit(0);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // Aqui teniamos el recv para recibir mensajes de un cliente
+    // }
 
     close(server_socket);
     freeaddrinfo(res);

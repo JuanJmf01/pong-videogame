@@ -46,7 +46,19 @@ int main()
     {
         printf("Conexión al servidor establecida con éxito.\n");
     }
-    freeaddrinfo(res);
+
+    // Enviar un mensaje de registro al servidor
+    if (sendto(client_socket, "clientConnect", 13, 0, res->ai_addr, res->ai_addrlen) != -1)
+    {
+        printf("Cnnfirmacion enviada");
+    }
+    else
+    {
+        perror("Error al enviar mensaje de confirmación");
+        close(client_socket);
+        freeaddrinfo(res);
+        exit(EXIT_FAILURE);
+    }
 
     char message[20];
     char buffer[1024];
@@ -56,7 +68,7 @@ int main()
     while (1)
     {
 
-        //Nota: utilizamos STDIN_FILENO solo cuando sea necesario enviar datos por medio de la consola
+        // Nota: utilizamos STDIN_FILENO solo cuando sea necesario enviar datos por medio de la consola
 
         FD_ZERO(&read_fds);
         FD_SET(STDIN_FILENO, &read_fds);
@@ -82,7 +94,7 @@ int main()
         if (FD_ISSET(STDIN_FILENO, &read_fds))
         {
 
-            //printf("Ingrese un mensaje: (prueba de contexto)");
+            // printf("Ingrese un mensaje: (prueba de contexto)");
             fgets(message, sizeof(message), stdin);
 
             ssize_t bytes_sent;
