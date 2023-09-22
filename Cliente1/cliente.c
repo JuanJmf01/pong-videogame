@@ -1,12 +1,14 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <arpa/inet.h>
-#include <sys/socket.h>
 #include <netdb.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-// 71692175
+
+#define ADRESS_IP "localhost"
+#define PORT "3930"
+
 
 int main()
 {
@@ -18,7 +20,7 @@ int main()
     hints.ai_socktype = SOCK_DGRAM;
 
     // Recordar que getaddrinfo llena la estructura del res con la estructura de hints y el host y puerto proporcionados
-    if (getaddrinfo("localhost", "3930", &hints, &res) != 0)
+    if (getaddrinfo(ADRESS_IP, PORT, &hints, &res) != 0)
     {
         perror("Error en getaddrinfo");
         exit(EXIT_FAILURE);
@@ -35,29 +37,23 @@ int main()
         printf("Socket del cliente creado con éxito.\n");
     }
 
-    if (connect(client_socket, res->ai_addr, res->ai_addrlen) == -1)
-    {
-        perror("Error al conectar con el servidor");
-        close(client_socket);
-        freeaddrinfo(res);
-        exit(EXIT_FAILURE);
-    }
-    else
-    {
-        printf("Conexión al servidor establecida con éxito.\n");
-    }
+    // if (connect(client_socket, res->ai_addr, res->ai_addrlen) == -1)
+    // {
+    //     perror("Error al conectar con el servidor");
+    //     close(client_socket);
+    //     freeaddrinfo(res);
+    //     exit(EXIT_FAILURE);
+    // }
+    // else
+    // {
+    //     printf("Conexión al servidor establecida con éxito.\n");
+    // }
 
     // Enviar un mensaje de registro al servidor
     if (sendto(client_socket, "clientConnect", 13, 0, res->ai_addr, res->ai_addrlen) != -1)
     {
-        printf("Cnnfirmacion enviada");
-    }
-    else
-    {
-        perror("Error al enviar mensaje de confirmación");
-        close(client_socket);
-        freeaddrinfo(res);
-        exit(EXIT_FAILURE);
+        printf("Confirmacion enviada \n");
+        fflush(stdout); // Forzar la escritura inmediata
     }
 
     char message[20];
@@ -65,6 +61,7 @@ int main()
     fd_set read_fds;
     int max_fd;
 
+    
     while (1)
     {
 
