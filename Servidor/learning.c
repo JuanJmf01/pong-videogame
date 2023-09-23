@@ -10,7 +10,7 @@ struct ClientInfo
 {
     int socket;
     int client_port;
-    // struct sockaddr_in address;
+    struct sockaddr_in address;
 };
 
 struct ClientInfo clients[2];
@@ -66,15 +66,13 @@ void newClient(int server_socket, struct sockaddr_in client_addr)
     inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
     client_port = ntohs(client_addr.sin_port);
 
-    int emptySpace = -1;
     for (int i = 0; i < 2; i++)
     {
         if (clients[i].socket == -1)
         {
-            emptySpace = i;
             // Guardar informacion del nuevo cliente en el arreglo clients
-            clients[emptySpace].socket = server_socket;
-            clients[emptySpace].client_port = client_port;
+            clients[i].socket = server_socket;
+            clients[i].client_port = client_port;
             printf("PUERTO: %d ; ", client_port);
             printf("IP: %s \n", client_ip);
             break;
@@ -86,9 +84,9 @@ void conectTwoPlayers(int server_socket)
 {
 
     /* La línea `fd_set read_fds;` declara una variable `read_fds` de tipo `fd_set`. `fd_set` es un dato
-  estructura utilizada por la función `select()` para que verifique si el socket esta listo para la lectura.
-  En este caso, se utilizará `read_fds` para indicar qué sockets deben verificarse
-  `select()` para ver si están listos para leer (recibir datos). */
+    estructura utilizada por la función `select()` para que verifique si el socket esta listo para la lectura.
+    En este caso, se utilizará `read_fds` para indicar qué sockets deben verificarse por
+    `select()` para ver si están listos para leer (recibir datos). */
     fd_set read_fds;
 
     int max_fd; // Descriptor máximo para select
@@ -114,7 +112,6 @@ void conectTwoPlayers(int server_socket)
         if (select(max_fd + 1, &temp_fds, NULL, NULL, NULL) == -1)
         {
             perror("Error en select");
-           
         }
 
         // Iteramos sobre los sockets (descriptores de archivos)
@@ -188,7 +185,7 @@ void inicializarArreglo()
 {
     for (int i = 0; i < 2; i++)
     {
-        clients[i].socket = -1; 
+        clients[i].socket = -1;
     }
 }
 
