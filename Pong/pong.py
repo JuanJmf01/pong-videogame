@@ -37,6 +37,42 @@ bola.goto(0,0)
 
 
 #Linea Division
+lineaDiv = turtle.Turtle()
+lineaDiv.color("white")
+lineaDiv.goto(0,-700)
+lineaDiv.goto(0,700)
+
+
+
+#funciones 
+
+def jugador1_sube():
+    y = jugador1.ycor()
+    y += 20
+    jugador1.sety(y)
+
+def jugador1_baja():
+    y = jugador1.ycor()
+    y -= 20
+    jugador1.sety(y)
+
+def jugador1_der():
+    x = jugador1.xcor()
+    x += 20
+    jugador1.setx(x)
+
+def jugador1_izq():
+    x = jugador1.xcor()
+    x -= 20
+    jugador1.setx(x)
+
+#teclao
+wn.listen()
+wn.onkeypress(jugador1_sube, "w")
+wn.onkeypress(jugador1_baja, "s")
+wn.onkeypress(jugador1_der, "d")
+wn.onkeypress(jugador1_izq, "a")
+
 
 
 while True: 
