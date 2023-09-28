@@ -61,37 +61,44 @@ tablero.write("Jugador 1: 0            Jugador 2: 0", align= "center", font= ("O
 
 
 #funciones 
-
 def jugador1_sube():
     y = jugador1.ycor()
     y += 20
-    jugador1.sety(y)
+    #limite superior jugador 2
+    if y + jugador1.shapesize()[0] * 10 / 2 <= wn.window_height() / 2:
+        jugador1.sety(y)
 
 def jugador1_baja():
     y = jugador1.ycor()
     y -= 20
-    jugador1.sety(y)
+    #Limite inferior jugador 1
+    if y - jugador1.shapesize()[0] * 10 / 2 >= -wn.window_height() / 2:
+        jugador1.sety(y)
 
 #def jugador1_der():
-    x = jugador1.xcor()
-    x += 20
-    jugador1.setx(x)
+ #   x = jugador1.xcor()
+  #  x += 20
+   # jugador1.setx(x)
 
 #def jugador1_izq():
-    x = jugador1.xcor()
-    x -= 20
-    jugador1.setx(x)
+ #   x = jugador1.xcor()
+  #  x -= 20
+   # jugador1.setx(x)
 
 
 def jugador2_sube():
     y = jugador2.ycor()
     y += 20
-    jugador2.sety(y)
+    #Limite superior jugador 2
+    if y + jugador2.shapesize()[0] * 10 / 2 <= wn.window_height() / 2:
+        jugador2.sety(y)
 
 def jugador2_baja():
     y = jugador2.ycor()
     y -= 20
-    jugador2.sety(y)
+    #Limite inferior jugador 2
+    if y - jugador2.shapesize()[0] * 10 / 2 >= -wn.window_height() / 2:
+        jugador2.sety(y)
 
 #def jugador2_der():
  #   x = jugador2.xcor()
