@@ -34,6 +34,8 @@ bola.shape("circle")
 bola.color("white")
 bola.penup()
 bola.goto(0,0)
+bola.dx = 0.5
+bola.dy = 0.5
 
 
 #Linea Division
@@ -77,3 +79,37 @@ wn.onkeypress(jugador1_izq, "a")
 
 while True: 
     wn.update()
+    bola.setx(bola.xcor() + bola.dx)
+    bola.sety(bola.ycor() + bola.dy)
+    
+
+
+
+    #Bordes Base
+    if bola.ycor() > 360:
+        bola.dy *= -1
+    if bola.ycor() < -360:
+        bola.dy *= -1
+
+
+
+    #Bordes Laterales    
+    if bola.xcor() > 450:
+        bola.goto(0,0)
+        bola.dx *= -1
+    if bola.xcor() < -450:
+        bola.goto(0,0)
+        bola.dx *= -1
+
+
+    #fisicas
+
+    if ((bola.xcor() > 390 and bola.xcor() < 400)
+        and (bola.ycor() < jugador2.ycor() +50
+        and bola.ycor() > jugador2.ycor()-50)):
+         bola.dx *= -1
+
+    if ((bola.xcor() < -390 and bola.xcor() > -400)
+        and (bola.ycor() < jugador1.ycor() +50
+        and bola.ycor() > jugador1.ycor()-50)):
+         bola.dx *= -1   
