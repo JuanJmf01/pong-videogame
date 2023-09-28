@@ -45,6 +45,16 @@ lineaDiv.goto(0,-700)
 lineaDiv.goto(0,700)
 
 
+#ScoreBoard
+tablero = turtle.Turtle()
+tablero.speed (0)
+tablero.color ("white")
+tablero.penup()
+tablero.hideturtle()
+tablero.goto(0,280)
+tablero.write("Jugador 1: 0            Jugador 2: 0", align= "center", font= ("Courier", 24, "normal"))
+
+
 
 #funciones 
 
