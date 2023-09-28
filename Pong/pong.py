@@ -58,22 +58,51 @@ def jugador1_baja():
     y -= 20
     jugador1.sety(y)
 
-def jugador1_der():
+#def jugador1_der():
     x = jugador1.xcor()
     x += 20
     jugador1.setx(x)
 
-def jugador1_izq():
+#def jugador1_izq():
     x = jugador1.xcor()
     x -= 20
     jugador1.setx(x)
 
-#teclao
+
+def jugador2_sube():
+    y = jugador2.ycor()
+    y += 20
+    jugador2.sety(y)
+
+def jugador2_baja():
+    y = jugador2.ycor()
+    y -= 20
+    jugador2.sety(y)
+
+#def jugador2_der():
+ #   x = jugador2.xcor()
+  #  x += 20
+   # jugador2.setx(x)
+
+#def jugador2_izq():
+#    x = jugador2.xcor()
+#    x -= 20
+#    jugador2.setx(x)
+
+
+
+#teclado
 wn.listen()
 wn.onkeypress(jugador1_sube, "w")
 wn.onkeypress(jugador1_baja, "s")
-wn.onkeypress(jugador1_der, "d")
-wn.onkeypress(jugador1_izq, "a")
+#wn.onkeypress(jugador1_der, "d")
+#wn.onkeypress(jugador1_izq, "a")
+
+wn.onkeypress(jugador2_sube, "Up")
+wn.onkeypress(jugador2_baja, "Down")
+#wn.onkeypress(jugador2_der, "Right")
+#wn.onkeypress(jugador2_izq, "Left")
+
 
 
 
@@ -113,3 +142,4 @@ while True:
         and (bola.ycor() < jugador1.ycor() +50
         and bola.ycor() > jugador1.ycor()-50)):
          bola.dx *= -1   
+
