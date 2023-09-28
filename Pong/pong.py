@@ -44,7 +44,7 @@ bola.dy = 0.5
 
 #Linea Division
 lineaDiv = turtle.Turtle()
-lineaDiv.color("white")
+lineaDiv.color("black")
 lineaDiv.goto(0,-700)
 lineaDiv.goto(0,700)
 
