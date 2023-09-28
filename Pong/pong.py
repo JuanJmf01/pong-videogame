@@ -8,6 +8,10 @@ wn.bgcolor ("black")
 wn.setup(width = 800, height=600 )
 wn.tracer(0)
 
+#Marcador
+marcador1 = 0
+marcador2 = 0
+
 
 #jugador 1
 jugador1 = turtle.Turtle()
@@ -136,9 +140,18 @@ while True:
     if bola.xcor() > 450:
         bola.goto(0,0)
         bola.dx *= -1
+        marcador1 += 1
+        tablero.clear()
+        tablero.write("Jugador 1: {}            Jugador 2: {}".format (marcador1, marcador2), align= "center", font= ("Courier", 24, "normal"))
+
+
     if bola.xcor() < -450:
         bola.goto(0,0)
         bola.dx *= -1
+        marcador2 += 1
+        tablero.clear()
+        tablero.write("Jugador 1: {}            Jugador 2: {}". format(marcador1,marcador2), align= "center", font= ("Courier", 24, "normal"))
+
 
 
     #fisicas
