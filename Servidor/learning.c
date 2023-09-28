@@ -18,13 +18,21 @@ struct ClientInfo
     struct sockaddr_in client_addr;
 };
 
-struct ClientInfo clients[3];
+struct Positions
+{
+    int posicionRaqueta_x;
+    int puntaje;
+};
+
+
+struct ClientInfo clients[2];
+struct Positions gamePOsitions[2];
 
 void startGame(int server_socket, int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescriptor)
 {
-    if (clientesAdd == 3)
+    if (clientesAdd == 2)
     {
-        printf("Estoy listo para recibir mensajes\n");
+        //printf("Estoy listo para recibir mensajes\n");
 
         for (int i = 0; i <= max_fileDescriptor; i++)
         {
@@ -47,7 +55,7 @@ void startGame(int server_socket, int clientesAdd, fd_set temp_fileDescriptor, i
                 buffer[bytes_received] = '\0';
 
                 int puertoEmisor = ntohs(client_addr.sin_port);
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     int puertoReceptor = clients[i].client_port;
 
@@ -89,7 +97,7 @@ void newClient(int server_socket, struct sockaddr_in client_addr)
     inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
     client_port = ntohs(client_addr.sin_port);
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 2; i++)
     {
         if (clients[i].socket == -1)
         {
@@ -128,7 +136,6 @@ void conectTwoPlayers(int server_socket)
 
     while (1)
     {
-        printf("SERVER SOCKET: %d \n", server_socket);
         fd_set temp_fileDescriptor = read_fileDescriptors;
 
         if (select(max_fileDescriptor + 1, &temp_fileDescriptor, NULL, NULL, NULL) == -1)
@@ -143,7 +150,7 @@ void conectTwoPlayers(int server_socket)
         {
             /* La sentencia `if` comprueba si el socket del servidor está listo para lectura y si el
              el número de clientes conectados es inferior a 2. */
-            if (FD_ISSET(server_socket, &temp_fileDescriptor) && clientesAdd < 3)
+            if (FD_ISSET(server_socket, &temp_fileDescriptor) && clientesAdd < 2)
             {
 
                 struct sockaddr_in client_addr;
@@ -207,7 +214,7 @@ int defineSocket()
 
 void inicializarArreglo()
 {
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 2; i++)
     {
         clients[i].socket = -1;
     }
