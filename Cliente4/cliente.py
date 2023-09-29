@@ -19,7 +19,7 @@ except:
     print("Error al enviar la confirmacion")
 
 
-# Configuración de la parte gráfica del juego Pong
+# Configuracion de la parte grafica del juego Pong
 # Ventana 
 wn = turtle.Screen()
 wn.title ("Pong")
@@ -97,7 +97,6 @@ def jugador2_sube():
     y = jugador2.ycor()
     y += 20
     jugador2.sety(y)
-    #enviar_posicion_al_servidor("jugador2_up" + str(y))
 
 
 def jugador2_baja():
@@ -105,7 +104,6 @@ def jugador2_baja():
     y -= 20
 
     jugador2.sety(y)
-    #enviar_posicion_al_servidor("jugador2_down" + str(y))
 
 
 #Enviar posicion al servidor
@@ -143,14 +141,14 @@ wn.onkeypress(jugador2_baja, "Down")
 def recibir_enviar_mms():
     while True:
          # Configurar la lista de sockets para select()
-        # La línea `sockets_list = [sys.stdin, client_socket]` está creando una lista de sockets que seran
-        # utilizados por la función `select()` para verificar si hay datos disponibles para leer en alguno de los sockets.
+        # La linea `sockets_list = [sys.stdin, client_socket]` esta creando una lista de sockets que seran
+        # utilizados por la funcion `select()` para verificar si hay datos disponibles para leer en alguno de los sockets.
         sockets_list = [sys.stdin, client_socket]
 
-        # select() es una función que permite a un programa monitorear múltiples descriptores de archivos (en este contexto, sockets) 
-        # para determinar cuáles están listos para lectura, escritura o si se ha producido un error en alguno de ellos 
-        # - read_sockets: sockets_listos_para_leer: La lista de sockets que están listos para lectura.
-        # - _:            sockets_listos_para_escribir: La lista de sockets que están listos para escritura.
+        # select() es una funcion que permite a un programa monitorear multiples descriptores de archivos (en este contexto, sockets) 
+        # para determinar cuales estan listos para lectura, escritura o si se ha producido un error en alguno de ellos 
+        # - read_sockets: sockets_listos_para_leer: La lista de sockets que estan listos para lectura.
+        # - _:            sockets_listos_para_escribir: La lista de sockets que estan listos para escritura.
         # - _:            sockets_con_errores: La lista de sockets que tienen errores.
         # Utilizamos '_' ya que es una variable descarte (No se va utilizar)
         read_sockets, _, _ = select.select(sockets_list, [], [])
@@ -171,7 +169,7 @@ def recibir_enviar_mms():
 def juego_grafica():
     while True:
         wn.update()
-        # Actualiza la posición de la bola
+        # Actualiza la posicion de la bola
         x = bola.xcor()
         y = bola.ycor()
         x += bola.dx
@@ -179,32 +177,32 @@ def juego_grafica():
         bola.setx(x)
         bola.sety(y)
 
-        # Detectar colisión con la pared superior
+        # Detectar choque con la pared superior
         if y > 350:
-            bola.sety(350)  # Ajusta la posición para evitar que la bola se salga de la ventana
-            bola.dy *= -1  # Invierte la dirección vertical
+            bola.sety(350)  # Ajusta la posicion para evitar que la bola se salga de la ventana
+            bola.dy *= -1  # Invierte la direccion vertical
 
-        # Detectar colisión con la pared inferior
+        # Detectar choque con la pared inferior 
         if y < -350:
             bola.sety(-345)
             bola.dy *= -1
         
-        # Detectar colisión con la pared izquierda
+        # Detectar choque con la pared izquierda
         if x < -440:
             bola.goto(0, 0)  # Vuelve a colocar la bola en el centro
-            bola.dx *= -1     # Invierte la dirección horizontal
+            bola.dx *= -1     # Invierte la direccion horizontal
 
-    # Detectar colisión con la pared derecha
+        # Detectar choque con la pared derecha
         if x > 440:
             bola.goto(0, 0)  # Vuelve a colocar la bola en el centro
-            bola.dx *= -1     # Invierte la dirección horizontal
+            bola.dx *= -1     # Invierte la direccion horizontal
 
-           #Detectar colisión con el jugador 1
+           #Detectar choque con el jugador 1
         if (x > 390) and (y < jugador2.ycor() + 50) and (y > jugador2.ycor() - 50):
-            bola.setx(390)  # Ajusta la posición para evitar que la bola se solape con el jugador
-            bola.dx *= -1  # Invierte la dirección horizontal
+            bola.setx(390)  # Ajusta la posicion para evitar que la bola se solape con el jugador
+            bola.dx *= -1  # Invierte la direccion horizontal
 
-           #Detectar colisión con el jugador 2
+           #Detectar choque con el jugador 2
         if (x < -390) and (y < jugador1.ycor() + 50) and (y > jugador1.ycor() - 50):
             bola.setx(-390)
             bola.dx *= -1

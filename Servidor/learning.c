@@ -2,6 +2,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <stdlib.h>
+#include <pthread.h>
 
 #define ADRESS_IP "localhost"
 #define PORT "3930"
@@ -18,21 +20,62 @@ struct ClientInfo
     struct sockaddr_in client_addr;
 };
 
-struct Positions
+struct DatosDeJuego
 {
-    int posicionRaqueta_x;
-    int puntaje;
+    float posicion_raqueta_j1;
+    float posicion_raqueta_j2;
+    float posicion_bola_x;
+    float posicion_bola_y;
+    float dx;
+    float dy;
 };
 
-
 struct ClientInfo clients[2];
-struct Positions gamePOsitions[2];
+struct DatosDeJuego datosDeJuego[1];
+
+void *calcularPosicionBola()
+{
+    float jugador1 = datosDeJuego[0].posicion_raqueta_j1;
+    float jugador2 = datosDeJuego[0].posicion_raqueta_j2;
+    float x = datosDeJuego[0].posicion_bola_x;
+    float y = datosDeJuego[0].posicion_bola_y;
+    float dx = datosDeJuego[0].dx;
+    float dy = datosDeJuego[0].dy;
+
+    printf("MIS POSICIONES: %f : %f,\n", x, y);
+
+    // Detectar choque con la pared superior e inferior
+    if (y > 350 || y < -350)
+    {
+        dy *= -1;
+    }
+
+    // Detectar choque con la pared derecha o izquierda
+    if (x < -440 || x > 440)
+    {
+        dx *= -1;
+    }
+
+    // Detectar choque de la pelota con la raqueta de el jugador 1
+    if (x > 390 && y < jugador2 + 50 && y > jugador2 - 50)
+    {
+        x = 390;
+        dx *= -1;
+    }
+
+    // Detectar choque de la pelota con la raqueta de el jugador 2
+    if (x < -390 && y < jugador1 + 50 && y > jugador1 - 50)
+    {
+        x = -390;
+        dx *= -1;
+    }
+}
 
 void startGame(int server_socket, int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescriptor)
 {
     if (clientesAdd == 2)
     {
-        //printf("Estoy listo para recibir mensajes\n");
+        // printf("Estoy listo para recibir mensajes\n");
 
         for (int i = 0; i <= max_fileDescriptor; i++)
         {
@@ -172,7 +215,7 @@ void conectTwoPlayers(int server_socket)
     }
 }
 
-int defineSocket()
+void *defineSocket()
 {
     int server_socket, client_socket;
     struct addrinfo hints, *res; // Utilizamos addrinfo para representar direcciones y nombres de host
@@ -208,8 +251,6 @@ int defineSocket()
     }
 
     freeaddrinfo(res);
-
-    return server_socket;
 }
 
 void inicializarArreglo()
@@ -220,10 +261,40 @@ void inicializarArreglo()
     }
 }
 
+void inicializarPosicionBola()
+{
+    for (int i = 0; i < 1; i++)
+    {
+        datosDeJuego[i].posicion_bola_x = 0;
+        datosDeJuego[i].posicion_bola_y = 0;
+        datosDeJuego[i].dx = 0;
+        datosDeJuego[i].dx = 0;
+    }
+}
+
 int main()
 {
     inicializarArreglo();
-    defineSocket();
+    inicializarPosicionBola();
+
+    pthread_t hiloSocket, hiloDeBola;
+
+    if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
+    {
+        perror("Error");
+        return 1;
+    }
+
+    if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
+    {
+        perror("Error");
+        return 1;
+    }
+
+    pthread_join(hiloSocket, NULL);
+    pthread_join(hiloDeBola, NULL);
+
+    // defineSocket();
 
     return 0;
 }
