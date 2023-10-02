@@ -6,144 +6,13 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "serverSocket.h"
+#include "../variablesCompartidas.h"
 
 #define ADRESS_IP "localhost"
 #define PORT "3930"
 
-int cliente;
-int server_socket, client_socket;
-
-struct ClientInfo
-{
-    int socket;
-    int client_port;
-    /* La línea `struct sockaddr_in client_addr;` declara una variable `client_addr` de
-    tipo `struct sockaddr_in`. Esta estructura se utiliza para almacenar la dirección del cliente.
-    información, como la dirección IP y el número de puerto. Se utiliza en funciones como
-    `recvfrom()` y `sendto()` para especificar la dirección del cliente al recibir o
-    enviar datos a través de un socket de red. */
-    struct sockaddr_in client_addr;
-};
-
-struct ClientInfo clients[2];
-
-struct DatosDeJuego
-{
-    float posicion_bola_x;
-    float posicion_bola_y;
-    float dx;
-    float dy;
-    float raqueta_j1;
-    float raqueta_j2;
-};
-
-struct DatosDeJuego datosDeJuego[1];
-
-void *calcularPosicionBola()
-{
-    while (1)
-    {
-        if (cliente == 2)
-        {
-            float x = datosDeJuego[0].posicion_bola_x;
-            float y = datosDeJuego[0].posicion_bola_y;
-            float dx = datosDeJuego[0].dx;
-            float dy = datosDeJuego[0].dy;
-            float jugador1 = datosDeJuego[0].raqueta_j1;
-            float jugador2 = datosDeJuego[0].raqueta_j2;
-
-            x += dx;
-            y += dy;
-
-            // printf("MIS POSICIONES: %f : %f,\n", x, y);
-
-            // Detectar choque con la pared superior
-            if (y > 350)
-            {
-                y = 350;
-                dy *= -1;
-            }
-
-            // Detecta rchoque con la pared inferior
-            if (y < -350)
-            {
-                y = -350;
-                dy *= -1;
-            }
-
-            // Detectar choque con la pared derecha
-            if (x > 440)
-            {
-                x = 0;
-                y = 0;
-                dx *= -1;
-            }
-
-            // Detectar choque con la pared izquierda
-            if (x < -440)
-            {
-                x = 0;
-                y = 0;
-                dx *= -1;
-            }
-
-            // Choque con la raqueta del jugador 2
-            if (x > 390 && y < jugador1 + 50 && y > jugador1 - 50)
-            {
-                x = 390;
-                dx *= -1;
-            }
-
-            // Choque con la raqueta del jugador 1
-            if (x < -390 && y < jugador2 + 50 && y > jugador2 - 50)
-            {
-                x = -390;
-                dx *= -1;
-            }
-
-            datosDeJuego[0].posicion_bola_x = x;
-            datosDeJuego[0].posicion_bola_y = y;
-            datosDeJuego[0].dx = dx;
-            datosDeJuego[0].dy = dy;
-
-            char buffer_jugador1[64];
-            char buffer_jugador2[64];
-
-            snprintf(buffer_jugador1, sizeof(buffer_jugador1), "POSICION_PELOTA:%f,%f,%f,%f", x, y, dx, dy);
-            snprintf(buffer_jugador2, sizeof(buffer_jugador2), "POSICION_PELOTA:%f,%f,%f,%f", -x, y, dx, dy);
-
-            struct sockaddr_in client_addr;
-            socklen_t addr_size = sizeof(client_addr);
-
-            for (int i = 0; i < 2; i++)
-            {
-                int puertoReceptor = clients[i].client_port;
-
-                client_addr.sin_family = AF_UNSPEC;
-                client_addr.sin_port = htons(puertoReceptor);
-                inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
-
-                char buffer[64];
-
-                if (i == 0)
-                {
-                    // buffer = buffer_jugador1
-                    strcpy(buffer, buffer_jugador1);
-                }
-                if (i == 1)
-                {
-                    // buffer = buffer_jugador2
-                    strcpy(buffer, buffer_jugador2);
-                }
-
-                sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
-            }
-        }
-        usleep(50000); // controlar la velocidad de actualización
-    }
-}
-
-void startGame(int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescriptor)
+void startGame(int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescriptor, struct DatosDeJuego *datos)
 {
     if (clientesAdd == 2)
     {
@@ -185,27 +54,27 @@ void startGame(int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescript
                         {
                             if (i == 0)
                             {
-                                datosDeJuego[0].raqueta_j1 += 20;
+                                datos[0].raqueta_j1 += 20;
                             }
                             else if (i == 1)
                             {
-                                datosDeJuego[0].raqueta_j2 += 20;
+                                datos[0].raqueta_j2 += 20;
                             }
                         }
                         if (strncmp(buffer, "jugador1_down", strlen("jugador1_down")) == 0)
                         {
                             if (i == 0)
                             {
-                                datosDeJuego[0].raqueta_j1 -= 20;
+                                datos[0].raqueta_j1 -= 20;
                             }
                             else if (i == 1)
                             {
-                                datosDeJuego[0].raqueta_j2 -= 20;
+                                datos[0].raqueta_j2 -= 20;
                             }
                         }
 
-                        printf("MI NUEVA POSICION 1: %f\n", datosDeJuego[0].raqueta_j1);
-                        printf("MI NUEVA POSICION 2: %f\n", datosDeJuego[0].raqueta_j2);
+                        printf("MI NUEVA POSICION 1: %f\n", datos[0].raqueta_j1);
+                        printf("MI NUEVA POSICION 2: %f\n", datos[0].raqueta_j2);
 
                         sendto(server_socket, buffer, strlen(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
                         printf("Cliente %d dice: %s\n", puertoReceptor, buffer);
@@ -253,7 +122,7 @@ void newClient(struct sockaddr_in client_addr)
     }
 }
 
-void conectTwoPlayers()
+void conectTwoPlayers(struct DatosDeJuego *datos)
 {
 
     /* La línea `fd_set read_fileDescriptors;` declara una variable `read_fileDescriptors` de tipo `fd_set`. `fd_set` es un dato
@@ -311,12 +180,14 @@ void conectTwoPlayers()
             }
         }
 
-        startGame(clientesAdd, temp_fileDescriptor, max_fileDescriptor);
+        startGame(clientesAdd, temp_fileDescriptor, max_fileDescriptor, datos);
     }
 }
 
-void *defineSocket()
+void *defineSocket(void *juegoDatos)
 {
+    struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
+
     struct addrinfo hints, *res; // Utilizamos addrinfo para representar direcciones y nombres de host
 
     // make sure the struct is empty
@@ -346,54 +217,9 @@ void *defineSocket()
     if (bind(server_socket, res->ai_addr, res->ai_addrlen) != -1)
     {
         printf("Socket creado correctamente. \n\n");
-        conectTwoPlayers();
+        conectTwoPlayers(datos);
     }
 
     freeaddrinfo(res);
 }
 
-void inicializarArreglo()
-{
-    for (int i = 0; i < 2; i++)
-    {
-        clients[i].socket = -1;
-    }
-}
-
-void inicializarPosicionBola()
-{
-    for (int i = 0; i < 1; i++)
-    {
-        datosDeJuego[i].posicion_bola_x = 0;
-        datosDeJuego[i].posicion_bola_y = 0;
-        datosDeJuego[i].dx = 5;
-        datosDeJuego[i].dy = 5;
-    }
-}
-
-int main()
-{
-    inicializarArreglo();
-    inicializarPosicionBola();
-
-    pthread_t hiloSocket, hiloDeBola;
-
-    if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
-    {
-        perror("Error");
-        return 1;
-    }
-
-    if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
-    {
-        perror("Error");
-        return 1;
-    }
-
-    pthread_join(hiloDeBola, NULL);
-    pthread_join(hiloSocket, NULL);
-
-    // defineSocket();
-
-    return 0;
-}
