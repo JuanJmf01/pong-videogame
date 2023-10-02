@@ -4,6 +4,11 @@ import sys
 import threading
 import turtle
 
+import queue
+
+
+# Cola para intercambiar mensajes entre los hilos
+cola_de_mensajes = queue.Queue()
 
 SERVER_IP = "localhost"
 SERVER_PORT = 3930
@@ -119,12 +124,7 @@ def actualizar_juego(data):
     if "jugador1_up" in menssage:
         jugador2_sube()
     elif "jugador1_down" in menssage:
-        jugador2_baja() 
-    elif "jugador2_up" in menssage:
-        jugador1_sube()
-    elif "jugador2_down" in menssage:
-        jugador1_baja()
-
+        jugador2_baja()
 
 
 
@@ -158,67 +158,54 @@ def recibir_enviar_mms():
                 #print(read_sockets)
                 # Datos recibidos del servidor
                 data, server_address = client_socket.recvfrom(1024)
-                actualizar_juego(data)
-            elif sock == sys.stdin:
-                #print(read_sockets)
-                # Datos ingresados por el usuario
-                message = sys.stdin.readline()
-                client_socket.sendto(message.encode(), (SERVER_IP, SERVER_PORT))
+                data_str = data.decode("utf-8")  # Decodificar data a str
+                if data_str.startswith("POSICION_PELOTA:"):
+                    cola_de_mensajes.put(data_str)
+                else:
+                    actualizar_juego(data)
+
+        
 
 
 def juego_grafica():
     while True:
         wn.update()
         # Actualiza la posicion de la bola
-        x = bola.xcor()
-        y = bola.ycor()
-        x += bola.dx
-        y += bola.dy
-        bola.setx(x)
-        bola.sety(y)
 
-        # Detectar choque con la pared superior
-        if y > 350:
-            bola.sety(350)  # Ajusta la posicion para evitar que la bola se salga de la ventana
-            bola.dy *= -1  # Invierte la direccion vertical
+        if cola_de_mensajes.not_empty:
+            mensaje = cola_de_mensajes.get()
+            print("GET COLA: ", mensaje)
 
-        # Detectar choque con la pared inferior 
-        if y < -350:
-            bola.sety(-345)
-            bola.dy *= -1
+            mensaje = mensaje[len("POSICION_PELOTA:"):]
+            mensaje = mensaje.replace('\x00', '')
+            partes = mensaje.split(',')
         
-        # Detectar choque con la pared izquierda
-        if x < -440:
-            bola.goto(0, 0)  # Vuelve a colocar la bola en el centro
-            bola.dx *= -1     # Invierte la direccion horizontal
+            if len(partes) == 4:
+                # Obtener las partes como valores numéricos
+                x, y, dx, dy = map(float, partes)
 
-        # Detectar choque con la pared derecha
-        if x > 440:
-            bola.goto(0, 0)  # Vuelve a colocar la bola en el centro
-            bola.dx *= -1     # Invierte la direccion horizontal
+                print("X: ", x)
+                print("Y: ", y)
 
-           #Detectar choque con el jugador 1
-        if (x > 390) and (y < jugador2.ycor() + 50) and (y > jugador2.ycor() - 50):
-            bola.setx(390)  # Ajusta la posicion para evitar que la bola se solape con el jugador
-            bola.dx *= -1  # Invierte la direccion horizontal
+                # Actualiza la posicion de la bola
+                bola.setx(x)
+                bola.sety(y)
+                bola.dx = dx
+                bola.dy = dy
 
-           #Detectar choque con el jugador 2
-        if (x < -390) and (y < jugador1.ycor() + 50) and (y > jugador1.ycor() - 50):
-            bola.setx(-390)
-            bola.dx *= -1
-
+            
 
 
             
 # Como necesitamos ejecutar la parte grafica al mismo tiempo que tener en cuenta
 # los mensajes de salida y entrada entonces creamos 2 hilps que se encarguen de ejecutar
 
-# 1. Inicia la funcion de escucha para recibir_enviar_mms
+# 1. Funcion de escucha para recibir_enviar_mms
 hilo_cliente = threading.Thread(target=recibir_enviar_mms)
 hilo_cliente.start()
 
 
-# 2. Inicia la funcion de escucha de juego_grafica
+# 2. Funcion de escucha de juego_grafica
 hilo_grafico = threading.Thread(target=juego_grafica)
 hilo_grafico.start()
 
@@ -227,4 +214,3 @@ turtle.done()
 
 
 # Cerrar el socket
-
