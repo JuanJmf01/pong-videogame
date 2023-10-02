@@ -4,6 +4,8 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+
 
 #define ADRESS_IP "localhost"
 #define PORT "3930"
