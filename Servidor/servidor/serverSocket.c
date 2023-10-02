@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include "serverSocket.h"
-#include "../variablesCompartidas.h"
+#include "../variables/variablesCompartidas.h"
 
 #define ADRESS_IP "localhost"
 #define PORT "3930"
@@ -28,7 +28,7 @@ void startGame(int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescript
                 char buffer[1024];
                 ssize_t bytes_received;
 
-                /* ´recvfrom´ se utiliza para recibir datos de un cliente usando la función `recvfrom()`. Dentro de esta funcion,
+                /* ´recvfrom´ se utiliza para recibir datos de un cliente usando la funcion `recvfrom()`. Dentro de esta funcion,
                 la estructura ´client_addr´ se llenara con la informacion del cliente que envio los datos al igual que la estructura ´addr_size´*/
                 bytes_received = recvfrom(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &addr_size);
                 if (bytes_received == -1)
@@ -125,15 +125,15 @@ void newClient(struct sockaddr_in client_addr)
 void conectTwoPlayers(struct DatosDeJuego *datos)
 {
 
-    /* La línea `fd_set read_fileDescriptors;` declara una variable `read_fileDescriptors` de tipo `fd_set`. `fd_set` es un dato
-    estructura utilizada por la función `select()` para que verifique si el socket esta listo para la lectura.
-    En este caso, se utilizará `read_fileDescriptors` para indicar qué sockets deben verificarse por
-    `select()` para ver si están listos para leer (recibir datos). */
+    /* La linea `fd_set read_fileDescriptors;` declara una variable `read_fileDescriptors` de tipo `fd_set`. `fd_set` es un dato
+    estructura utilizada por la funcion `select()` para que verifique si el socket esta listo para la lectura.
+    En este caso, se utilizara `read_fileDescriptors` para indicar que sockets deben verificarse por
+    `select()` para ver si estan listos para leer (recibir datos). */
     fd_set read_fileDescriptors;
 
     int max_fileDescriptor;
 
-    /* `FD_ZERO(&read_fileDescriptors);` es una función que inicializa el conjunto `read_fileDescriptors` para que esté vacío.*/
+    /* `FD_ZERO(&read_fileDescriptors);` es una funcion que inicializa el conjunto `read_fileDescriptors` para que este vacio.*/
     FD_ZERO(&read_fileDescriptors);
 
     /* `FD_SET(server_socket, &read_fileDescriptors);` esta agregando el descriptor de archivo `server_socket` al
@@ -155,12 +155,12 @@ void conectTwoPlayers(struct DatosDeJuego *datos)
         }
 
         /* El bucle `for` itera sobre los descriptores de archivo desde 0 hasta `max_fileDescriptor`. Se
-        se usa para verificar cada descriptor de archivo para ver si está listo para leer usando `FD_ISSET`
+        se usa para verificar cada descriptor de archivo para ver si esta listo para leer usando `FD_ISSET`
         macro. */
         for (int i = 0; i <= max_fileDescriptor; i++)
         {
-            /* La sentencia `if` comprueba si el socket del servidor está listo para lectura y si el
-             el número de clientes conectados es inferior a 2. */
+            /* La sentencia `if` comprueba si el socket del servidor esta listo para lectura y si el
+             el numero de clientes conectados es inferior a 2. */
             if (FD_ISSET(server_socket, &temp_fileDescriptor) && clientesAdd < 2)
             {
 
@@ -194,14 +194,14 @@ void *defineSocket(void *juegoDatos)
     memset(&hints, 0, sizeof hints);
 
     // La estructura 'hints' se utiliza para especificar los criterios para la direccion
-    hints.ai_family = AF_UNSPEC; // AF_UNSPEC indica que se utilizará para comunicaciones en la capa de red utilizando direcciones IPv4 o IPv6
+    hints.ai_family = AF_UNSPEC; // AF_UNSPEC indica que se utilizara para comunicaciones en la capa de red utilizando direcciones IPv4 o IPv6
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE; // AI_PASSIVE llena la IP por mi (mediante el host en el que se esta ejecutando)
 
-    /*La función `getaddrinfo()` se utiliza para obtener la información de la dirección IP 'ADRESS_IP'.
-    y el puerto 'PORT'. El parámetro `hints` se utiliza para especificar los criterios para la dirección.
-    Información, como la familia de direcciones (IPv4 o IPv6) y el tipo de socket (en este caso,
-    `SOCK_DGRAM` para UDP). La información de dirección resultante se almacena en la estructura `res`. */
+    /*La funcion `getaddrinfo()` se utiliza para obtener la informacion de la direccion IP 'ADRESS_IP'.
+    y el puerto 'PORT'. El parametro `hints` se utiliza para especificar los criterios para la direccion.
+    Informacion, como la familia de direcciones (IPv4 o IPv6) y el tipo de socket (en este caso,
+    `SOCK_DGRAM` para UDP). La informacion de direccion resultante se almacena en la estructura `res`. */
     getaddrinfo(ADRESS_IP, PORT, &hints, &res);
 
     /* Creacion de un socket para el servidor.*/
@@ -211,9 +211,9 @@ void *defineSocket(void *juegoDatos)
         perror("Error al crear el socket del servidor");
     }
 
-    /* La función `bind()` se utiliza para asociar un socket con una dirección y un numero de puerto específicos. En
-    En este caso, está vinculando el `server_socket` a la dirección y el puerto especificados en el `res`.
-    Esto permite que el servidor escuche las conexiones entrantes en esa dirección y puerto. */
+    /* La funcion `bind()` se utiliza para asociar un socket con una direccion y un numero de puerto especificos. En
+    En este caso, esta vinculando el `server_socket` a la direccion y el puerto especificados en el `res`.
+    Esto permite que el servidor escuche las conexiones entrantes en esa direccion y puerto. */
     if (bind(server_socket, res->ai_addr, res->ai_addrlen) != -1)
     {
         printf("Socket creado correctamente. \n\n");

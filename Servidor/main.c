@@ -6,8 +6,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "variablesCompartidas.h"
-#include "ManejarPelota/manejarPelota.h"
+#include "variables/variablesCompartidas.h"
+#include "manejarPelota/manejarPelota.h"
 #include "servidor/serverSocket.h"
 
 
