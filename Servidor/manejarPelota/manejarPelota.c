@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 #include "manejarPelota.h"
-#include "../variablesCompartidas.h"
+#include "../variables/variablesCompartidas.h"
 
 
 #define ADRESS_IP "localhost"
@@ -120,7 +120,7 @@ void *calcularPosicionBola(void *juegoDatos)
                 sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
             }
         }
-        usleep(50000); // controlar la velocidad de actualización
+        usleep(50000); // controlar la velocidad de actualizacion
     }
 
 }
