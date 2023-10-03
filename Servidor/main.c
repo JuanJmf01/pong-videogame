@@ -10,10 +10,12 @@
 #include "manejarPelota/manejarPelota.h"
 #include "servidor/serverSocket.h"
 
+#define MAX_CLIENTS 4
+
 
 void inicializarArreglo()
 {
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < MAX_CLIENTS; i++)
     {
         clients[i].socket = -1;
     }
@@ -21,7 +23,7 @@ void inicializarArreglo()
 
 void inicializarPosicionBola()
 {
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 2; i++)
     {
         datosDeJuego[i].posicion_bola_x = 0;
         datosDeJuego[i].posicion_bola_y = 0;
@@ -29,6 +31,8 @@ void inicializarPosicionBola()
         datosDeJuego[i].dy = 5;
     }
 }
+
+
 
 int main()
 {
