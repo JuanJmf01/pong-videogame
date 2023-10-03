@@ -101,60 +101,83 @@ void conectTwoPlayers(struct DatosDeJuego *datos)
                     // startGame(clientesAdd, bytes_received, client_addr, datos);
                     verification_message[bytes_received] = '\0';
 
-                    printf("Mensaje del cliente: %s\n", verification_message);
-                    // startGame(clientesAdd, temp_fileDescriptor, max_fileDescriptor, datos);
+                    // printf("Mensaje del cliente: %s\n", verification_message);
+                    //  startGame(clientesAdd, temp_fileDescriptor, max_fileDescriptor, datos);
 
                     int tienePareja = 0;
-                    int puertoEmisor = ntohs(client_addr.sin_port);
+                    int puertoEmisor_en_socket = ntohs(client_addr.sin_port);
 
                     for (int i = 0; i < MAX_CLIENTS; i++)
                     {
-                        if (i % 2 != 0)
+                        int puertoEmisor_en_clients = clients[i].client_port;
+
+                        if (puertoEmisor_en_socket == puertoEmisor_en_clients)
                         {
-                            int valor = clients[i-1].socket;
-                            printf("ESTE ES EL VALOR: %d \n", valor);
-                        }
-                    }
+                            int puertoReceptor;
+                            int valor_jugador;
 
-                    if (clientesAdd == 2)
-                    {
+                            if (i % 2 != 0)
+                            {
+                                puertoReceptor = clients[i - 1].client_port;
+                                int valor_jugador = clients[i - 1].socket;
+                            }
+                            else
+                            {
+                                puertoReceptor = clients[i + 1].client_port;
+                                int valor_jugador = clients[i + 1].socket;
+                            }
 
-                        for (int i = 0; i < 2; i++)
-                        {
-                            int puertoReceptor = clients[i].client_port;
-
-                            if (puertoReceptor != puertoEmisor)
+                            if (valor_jugador != -1)
                             {
                                 client_addr.sin_family = AF_UNSPEC;
                                 client_addr.sin_port = htons(puertoReceptor);
                                 inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
 
-                                // Actualizar posicion de raqueta en 'datosDeJuego'
+                                int partida;
+                                if (i >= 2)
+                                {
+                                    printf("_MI I_ 1: %d \n", i);
+                                    if (i % 2 == 0)
+                                    {
+                                        partida = i / 2;
+                                    }
+                                    else
+                                    {
+                                        partida = (i - 1) / 2;
+                                    }
+                                }
+                                else
+                                {
+                                    printf("_MI I_ 2: %d\n", i);
+                                    partida = 0;
+                                }
+                                printf("PARTIDA PARA: %d \n", partida);
                                 if (strncmp(verification_message, "jugador1_up", strlen("jugador1_up")) == 0)
                                 {
-                                    if (i == 0)
+
+                                    if (i % 2 == 0)
                                     {
-                                        datos[0].raqueta_j1 += 20;
+                                        datos[partida].raqueta_j1 += 20;
                                     }
-                                    else if (i == 1)
+                                    else
                                     {
-                                        datos[0].raqueta_j2 += 20;
+                                        datos[partida].raqueta_j2 += 20;
                                     }
                                 }
                                 if (strncmp(verification_message, "jugador1_down", strlen("jugador1_down")) == 0)
                                 {
-                                    if (i == 0)
+                                    if (i % 2 == 0)
                                     {
-                                        datos[0].raqueta_j1 -= 20;
+                                        datos[partida].raqueta_j1 -= 20;
                                     }
-                                    else if (i == 1)
+                                    else
                                     {
-                                        datos[0].raqueta_j2 -= 20;
+                                        datos[partida].raqueta_j2 -= 20;
                                     }
                                 }
 
-                                printf("MI NUEVA POSICION 1: %f\n", datos[0].raqueta_j1);
-                                printf("MI NUEVA POSICION 2: %f\n", datos[0].raqueta_j2);
+                                printf("MI NUEVA POSICION 1: %f\n", datos[partida].raqueta_j1);
+                                printf("MI NUEVA POSICION 2: %f\n", datos[partida].raqueta_j2);
 
                                 sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
                                 printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
@@ -201,6 +224,7 @@ void *defineSocket(void *juegoDatos)
     if (bind(server_socket, res->ai_addr, res->ai_addrlen) != -1)
     {
         printf("Socket creado correctamente. \n\n");
+        printf("SERVER SOCKETTT : %d \n", server_socket);
         conectTwoPlayers(datos);
     }
 
