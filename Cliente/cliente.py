@@ -184,14 +184,14 @@ def juego_grafica():
                 # Obtener las partes como valores numéricos
                 x, y, dx, dy = map(float, partes)
 
-                #print("X: ", x)
-                #print("Y: ", y)
+                # print("X: ", x)
+                # print("Y: ", y)
 
                 # Actualiza la posicion de la bola
-                # bola.setx(x)
-                # bola.sety(y)
-                # bola.dx = dx
-                # bola.dy = dy
+                bola.setx(x)
+                bola.sety(y)
+                bola.dx = dx
+                bola.dy = dy
 
             
 
