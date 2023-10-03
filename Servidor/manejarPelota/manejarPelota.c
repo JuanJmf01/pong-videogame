@@ -15,6 +15,7 @@
 #define ADRESS_IP "localhost"
 #define PORT "3930"
 
+#define MAX_CLINTS 4
 
 
 void *calcularPosicionBola(void *juegoDatos)
@@ -96,7 +97,7 @@ void *calcularPosicionBola(void *juegoDatos)
             struct sockaddr_in client_addr;
             socklen_t addr_size = sizeof(client_addr);
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < MAX_CLINTS; i++)
             {
                 int puertoReceptor = clients[i].client_port;
 
@@ -106,16 +107,17 @@ void *calcularPosicionBola(void *juegoDatos)
 
                 char buffer[64];
 
-                if (i == 0)
+                if (i == 0 || i == 2)
                 {
                     // buffer = buffer_jugador1
                     strcpy(buffer, buffer_jugador1);
                 }
-                if (i == 1)
+                if (i == 1 || i == 3)
                 {
                     // buffer = buffer_jugador2
                     strcpy(buffer, buffer_jugador2);
                 }
+                
 
                 sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
             }

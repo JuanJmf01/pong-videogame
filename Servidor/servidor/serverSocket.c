@@ -12,91 +12,10 @@
 #define ADRESS_IP "localhost"
 #define PORT "3930"
 
-void startGame(int clientesAdd, fd_set temp_fileDescriptor, int max_fileDescriptor, struct DatosDeJuego *datos)
+#define MAX_CLIENTS 4
+
+void startGame(int clientesAdd, ssize_t bytes_received, struct sockaddr_in client_addr, struct DatosDeJuego *datos)
 {
-    if (clientesAdd == 2)
-    {
-        // printf("Estoy listo para recibir mensajes\n");
-
-        for (int i = 0; i <= max_fileDescriptor; i++)
-        {
-
-            if (FD_ISSET(i, &temp_fileDescriptor))
-            {
-                struct sockaddr_in client_addr;
-                socklen_t addr_size = sizeof(client_addr);
-                char buffer[1024];
-                ssize_t bytes_received;
-
-                /* ´recvfrom´ se utiliza para recibir datos de un cliente usando la funcion `recvfrom()`. Dentro de esta funcion,
-                la estructura ´client_addr´ se llenara con la informacion del cliente que envio los datos al igual que la estructura ´addr_size´*/
-                bytes_received = recvfrom(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &addr_size);
-                if (bytes_received == -1)
-                {
-                    perror("Error al recibir los datos");
-                }
-
-                buffer[bytes_received] = '\0';
-
-                int puertoEmisor = ntohs(client_addr.sin_port);
-                for (int i = 0; i < 2; i++)
-                {
-                    int puertoReceptor = clients[i].client_port;
-
-                    if (puertoReceptor != puertoEmisor)
-                    {
-                        client_addr.sin_family = AF_UNSPEC;
-                        client_addr.sin_port = htons(puertoReceptor);
-                        inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
-
-                        // Actualizar posicion de raqueta en 'datosDeJuego'
-                        if (strncmp(buffer, "jugador1_up", strlen("jugador1_up")) == 0)
-                        {
-                            if (i == 0)
-                            {
-                                datos[0].raqueta_j1 += 20;
-                            }
-                            else if (i == 1)
-                            {
-                                datos[0].raqueta_j2 += 20;
-                            }
-                        }
-                        if (strncmp(buffer, "jugador1_down", strlen("jugador1_down")) == 0)
-                        {
-                            if (i == 0)
-                            {
-                                datos[0].raqueta_j1 -= 20;
-                            }
-                            else if (i == 1)
-                            {
-                                datos[0].raqueta_j2 -= 20;
-                            }
-                        }
-
-                        printf("MI NUEVA POSICION 1: %f\n", datos[0].raqueta_j1);
-                        printf("MI NUEVA POSICION 2: %f\n", datos[0].raqueta_j2);
-
-                        sendto(server_socket, buffer, strlen(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
-                        printf("Cliente %d dice: %s\n", puertoReceptor, buffer);
-                        break;
-                    }
-                }
-
-                // for (int i = 0; i < 2; i++)
-                // {
-                //     int puertoReceptor = clients[i].client_port;
-                //     // printf("%d \n", puertoReceptor);
-
-                //     client_addr.sin_family = AF_UNSPEC;
-                //     client_addr.sin_port = htons(puertoReceptor);
-                //     inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
-
-                //     sendto(server_socket, buffer, strlen(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
-                //     printf("Cliente %d dice: %s\n", puertoReceptor, buffer);
-                // }
-            }
-        }
-    }
 }
 
 void newClient(struct sockaddr_in client_addr)
@@ -108,7 +27,7 @@ void newClient(struct sockaddr_in client_addr)
     inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
     client_port = ntohs(client_addr.sin_port);
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i].socket == -1)
         {
@@ -159,28 +78,93 @@ void conectTwoPlayers(struct DatosDeJuego *datos)
         macro. */
         for (int i = 0; i <= max_fileDescriptor; i++)
         {
-            /* La sentencia `if` comprueba si el socket del servidor esta listo para lectura y si el
-             el numero de clientes conectados es inferior a 2. */
-            if (FD_ISSET(server_socket, &temp_fileDescriptor) && clientesAdd < 2)
+            /* La sentencia `if` comprueba si el socket del servidor esta listo para lectura*/
+            if (FD_ISSET(server_socket, &temp_fileDescriptor))
             {
 
                 struct sockaddr_in client_addr;
                 socklen_t addr_size = sizeof(client_addr);
                 char verification_message[1024];
-                if (recvfrom(server_socket, verification_message, sizeof(verification_message), 0, (struct sockaddr *)&client_addr, &addr_size) != -1)
+                ssize_t bytes_received;
+
+                bytes_received = recvfrom(server_socket, verification_message, sizeof(verification_message), 0, (struct sockaddr *)&client_addr, &addr_size);
+
+                if (strncmp(verification_message, "clientConnect", strlen("clientConnect")) == 0)
                 {
-                    if (strncmp(verification_message, "clientConnect", strlen("clientConnect")) == 0)
+                    printf("Mensaje del cliente: %s\n", verification_message);
+                    newClient(client_addr);
+                    clientesAdd++;
+                    cliente++;
+                }
+                else
+                {
+                    // startGame(clientesAdd, bytes_received, client_addr, datos);
+                    verification_message[bytes_received] = '\0';
+
+                    printf("Mensaje del cliente: %s\n", verification_message);
+                    // startGame(clientesAdd, temp_fileDescriptor, max_fileDescriptor, datos);
+
+                    int tienePareja = 0;
+                    int puertoEmisor = ntohs(client_addr.sin_port);
+
+                    for (int i = 0; i < MAX_CLIENTS; i++)
                     {
-                        // printf("Mensaje del cliente: %s\n", verification_message);
-                        newClient(client_addr);
-                        clientesAdd++;
-                        cliente++;
+                        if (i % 2 != 0)
+                        {
+                            int valor = clients[i-1].socket;
+                            printf("ESTE ES EL VALOR: %d \n", valor);
+                        }
+                    }
+
+                    if (clientesAdd == 2)
+                    {
+
+                        for (int i = 0; i < 2; i++)
+                        {
+                            int puertoReceptor = clients[i].client_port;
+
+                            if (puertoReceptor != puertoEmisor)
+                            {
+                                client_addr.sin_family = AF_UNSPEC;
+                                client_addr.sin_port = htons(puertoReceptor);
+                                inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
+
+                                // Actualizar posicion de raqueta en 'datosDeJuego'
+                                if (strncmp(verification_message, "jugador1_up", strlen("jugador1_up")) == 0)
+                                {
+                                    if (i == 0)
+                                    {
+                                        datos[0].raqueta_j1 += 20;
+                                    }
+                                    else if (i == 1)
+                                    {
+                                        datos[0].raqueta_j2 += 20;
+                                    }
+                                }
+                                if (strncmp(verification_message, "jugador1_down", strlen("jugador1_down")) == 0)
+                                {
+                                    if (i == 0)
+                                    {
+                                        datos[0].raqueta_j1 -= 20;
+                                    }
+                                    else if (i == 1)
+                                    {
+                                        datos[0].raqueta_j2 -= 20;
+                                    }
+                                }
+
+                                printf("MI NUEVA POSICION 1: %f\n", datos[0].raqueta_j1);
+                                printf("MI NUEVA POSICION 2: %f\n", datos[0].raqueta_j2);
+
+                                sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
+                                printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
-
-        startGame(clientesAdd, temp_fileDescriptor, max_fileDescriptor, datos);
     }
 }
 
@@ -222,4 +206,3 @@ void *defineSocket(void *juegoDatos)
 
     freeaddrinfo(res);
 }
-
