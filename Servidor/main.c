@@ -25,8 +25,8 @@ void inicializarPosicionBola()
 {
     for (int i = 0; i < 2; i++)
     {
-        datosDeJuego[i].posicion_bola_x = 0;
-        datosDeJuego[i].posicion_bola_y = 0;
+        datosDeJuego[i].posicion_bola_x = 0.0;
+        datosDeJuego[i].posicion_bola_y = 0.0;
         datosDeJuego[i].dx = 5;
         datosDeJuego[i].dy = 5;
     }
@@ -39,7 +39,9 @@ int main()
     inicializarArreglo();
     inicializarPosicionBola();
 
-    pthread_t hiloSocket, hiloDeBola;
+    //pthread_t hiloSocket, hiloDeBola;
+    pthread_t hiloSocket;
+
 
     if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
     {
@@ -47,13 +49,13 @@ int main()
         return 1;
     }
 
-    if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
-    {
-        perror("Error");
-        return 1;
-    }
+    // if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
+    // {
+    //     perror("Error");
+    //     return 1;
+    // }
 
-    pthread_join(hiloDeBola, NULL);
+    //pthread_join(hiloDeBola, NULL);
     pthread_join(hiloSocket, NULL);
 
     return 0;
