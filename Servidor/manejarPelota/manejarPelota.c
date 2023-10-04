@@ -23,12 +23,12 @@ void *calcularPosicionBola(void *juegoDatos)
 
     while (1)
     {
-        float x = datos[0].posicion_bola_x;
-        float y = datos[0].posicion_bola_y;
-        float dx = datos[0].dx;
-        float dy = datos[0].dy;
-        float jugador1 = datos[0].raqueta_j1;
-        float jugador2 = datos[0].raqueta_j2;
+        float x = datos->posicion_bola_x;
+        float y = datos->posicion_bola_y;
+        float dx = datos->dx;
+        float dy = datos->dy;
+        float jugador1 = datos->raqueta_j1;
+        float jugador2 = datos->raqueta_j2;
 
         x += dx;
         y += dy;
@@ -79,10 +79,10 @@ void *calcularPosicionBola(void *juegoDatos)
             dx *= -1;
         }
 
-        datos[0].posicion_bola_x = x;
-        datos[0].posicion_bola_y = y;
-        datos[0].dx = dx;
-        datos[0].dy = dy;
+        datos->posicion_bola_x = x;
+        datos->posicion_bola_y = y;
+        datos->dx = dx;
+        datos->dy = dy;
 
         char buffer_jugador1[64];
         char buffer_jugador2[64];

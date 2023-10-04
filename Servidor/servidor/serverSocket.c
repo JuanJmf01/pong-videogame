@@ -8,6 +8,7 @@
 
 #include "serverSocket.h"
 #include "../variables/variablesCompartidas.h"
+#include "../manejarPelota/manejarPelota.h"
 
 #define ADRESS_IP "localhost"
 #define PORT "3930"
@@ -120,15 +121,53 @@ void conectTwoPlayers(struct DatosDeJuego *datos)
                             {
                                 puertoReceptor = clients[i - 1].client_port;
                                 int valor_jugador = clients[i - 1].socket;
+                                printf("PUERTO_RECEPTOR: %d", puertoReceptor);
+                                printf("VALOR JUGADOR 1: %d", valor_jugador);
                             }
                             else
                             {
                                 puertoReceptor = clients[i + 1].client_port;
                                 int valor_jugador = clients[i + 1].socket;
+                                printf("PUERTO_RECEPTOR: %d", puertoReceptor);
+                                printf("VALOR JUGADOR 2: %d", valor_jugador);
                             }
+
+                            pthread_t hilos_partidas[2];
 
                             if (valor_jugador != -1)
                             {
+                                
+                                
+
+                                // int partida_disponible = -1;
+
+                                // for (int i = 0; i < 2; i++)
+                                // {
+                                //     if (datosDeJuego[i].posicion_bola_x == 0.0 && datosDeJuego[i].posicion_bola_y == 0.0)
+                                //     {
+                                //         printf("DATOS DE JUEGO : %f", datosDeJuego[i].posicion_bola_x);
+                                //         partida_disponible = i;
+                                //         break;
+                                //     }
+                                // }
+
+                                // if (partida_disponible != -1)
+                                // {
+                                //     printf("Entra a crear hilo");
+                                
+
+                                //     // Crea un hilo para la nueva partida y pasa el puntero a la estructura de datos
+                                //     if (pthread_create(&hilos_partidas[partida_disponible], NULL, calcularPosicionBola, (void *)&datosDeJuego[partida_disponible]) != 0)
+                                //     {
+                                //         perror("Error al crear el hilo de la partida");
+                                //     }
+                                // }
+                                // else
+                                // {
+                                //     // No se encontró una partida disponible, puedes manejar esto de acuerdo a tus necesidades
+                                //     printf("No hay partidas disponibles en este momento.\n");
+                                // }
+
                                 client_addr.sin_family = AF_UNSPEC;
                                 client_addr.sin_port = htons(puertoReceptor);
                                 inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
