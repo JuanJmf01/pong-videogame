@@ -61,7 +61,7 @@ void *calcularPosicionBola(void *juegoDatos)
             // La bola salio por el lado izquierdo, reiniciar desde el centro hacia la derecha
             x = anchoPantalla / 2;
             y = altoPantalla / 2;
-            dx *= 1;
+            dx *= -1;
         }
 
         if (x >= anchoPantalla)
@@ -101,12 +101,12 @@ void *calcularPosicionBola(void *juegoDatos)
 
             char buffer[64];
 
-            if (i == 0 || i == 2)
+            if (i % 2 == 0)
             {
                 // buffer = buffer_jugador1
                 strcpy(buffer, buffer_jugador1);
             }
-            if (i == 1 || i == 3)
+            else
             {
                 // buffer = buffer_jugador2
                 strcpy(buffer, buffer_jugador2);

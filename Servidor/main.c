@@ -22,11 +22,11 @@ void inicializarArregloClientes()
 
 void inicializarPosicionBola()
 {
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < MAX_PARTIDAS; i++)
     {
         datosDeJuego[i].partida = i;
-        datosDeJuego[i].posicion_bola_x = 480;
-        datosDeJuego[i].posicion_bola_y = 360;
+        datosDeJuego[i].posicion_bola_x = anchoPantalla / 2;
+        datosDeJuego[i].posicion_bola_y = altoPantalla / 2;
         datosDeJuego[i].dx = 7;
         datosDeJuego[i].dy = 7;
     }

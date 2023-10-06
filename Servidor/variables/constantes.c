@@ -5,7 +5,7 @@ char ADRESS_IP[16] = "localhost";
 char PORT[8] = "3930";
 
 // Escalabilidad
-int MAX_CLIENTS = 4;
+int MAX_CLIENTS = 6;
 int MAX_PARTIDAS;
 
 /* Configuracion de la ventana del juego. Las variables que se defienen en la ventana
