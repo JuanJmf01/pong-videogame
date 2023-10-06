@@ -1,4 +1,5 @@
 #include "variablesCompartidas.h"
+#include "constantes.h"
 
 int cliente;
 int server_socket;
