@@ -33,7 +33,7 @@ Verifica la instalacion nuevamente usando el comando:
 Para compilar el proyecto, utiliza el siguiente comando:
 
 ```bash
-gcc main.c manejarPelota/manejarPelota.c servidor/serverSocket.c variables/variablesCompartidas.c -o main.out
+gcc main.c manejarPelota/manejarPelota.c servidor/serverSocket.c variables/variablesCompartidas.c variables/constantes.c -o main.out
 ```
 
 Para ejecutar el proyecto
