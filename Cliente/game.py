@@ -27,7 +27,7 @@ pygame.init()
 
 # Configuracion de la ventana del juego
 anchoOriginal, altoOriginal = 640, 480
-nivelEscala = 1.5
+nivelEscala = 1.0   
 anchoPantalla, altoPantalla = int(
     anchoOriginal * nivelEscala), int(altoOriginal * nivelEscala)
 pantalla = pygame.display.set_mode((anchoPantalla, altoPantalla))
@@ -53,10 +53,10 @@ bola = pygame.Rect(anchoPantalla // 2 - int(7.5 * nivelEscala), altoPantalla //
 velocidadBola_x = int(7 * nivelEscala)
 velocidadBola_y = int(7 * nivelEscala)
 
-print("ALTO RAQUETA: ", altoRaqueta) #120
-print("ANCHO RAQUETA: ", anchoRaqueta) #10
-print("ALEJAMIENTO RAQUETA: ", paletaJugador1) # <rect(50, 300, 10, 120)>
-print("BOLA: ", bola) # <rect(469, 349, 22, 22)>
+# print("ALTO RAQUETA: ", altoRaqueta) #120
+# print("ANCHO RAQUETA: ", anchoRaqueta) #10
+# print("ALEJAMIENTO RAQUETA: ", paletaJugador1) # <rect(50, 300, 10, 120)>
+# print("BOLA: ", bola) # <rect(469, 349, 22, 22)>
 
 
 # Funciones para movimiento de jugador 1

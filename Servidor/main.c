@@ -9,11 +9,10 @@
 #include "variables/variablesCompartidas.h"
 #include "manejarPelota/manejarPelota.h"
 #include "servidor/serverSocket.h"
+#include "variables/constantes.h"
 
-#define MAX_CLIENTS 4
 
-
-void inicializarArreglo()
+void inicializarArregloClientes()
 {
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
@@ -25,6 +24,7 @@ void inicializarPosicionBola()
 {
     for (int i = 0; i < 2; i++)
     {
+        datosDeJuego[i].partida = i;
         datosDeJuego[i].posicion_bola_x = 480;
         datosDeJuego[i].posicion_bola_y = 360;
         datosDeJuego[i].dx = 7;
@@ -36,27 +36,29 @@ void inicializarPosicionBola()
 
 int main()
 {
-    inicializarArreglo();
+    inicializarConstantes();
+    inicializarArregloClientes();
     inicializarPosicionBola();
+    defineSocket();
 
     //pthread_t hiloSocket, hiloDeBola;
-    pthread_t hiloSocket;
+    // pthread_t hiloSocket;
 
 
-    if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
-    {
-        perror("Error");
-        return 1;
-    }
-
-    // if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
+    // if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
     // {
     //     perror("Error");
     //     return 1;
     // }
 
-    //pthread_join(hiloDeBola, NULL);
-    pthread_join(hiloSocket, NULL);
+    // // if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
+    // // {
+    // //     perror("Error");
+    // //     return 1;
+    // // }
+
+    // //pthread_join(hiloDeBola, NULL);
+    // pthread_join(hiloSocket, NULL);
 
     return 0;
 }

@@ -1,15 +1,14 @@
-//variablesCompartidas.h
-
 #ifndef VARIABLESCOMPARTIDAS_H
 #define VARIABLESCOMPARTIDAS_H
 
-#include <netinet/in.h>  // Agrega esta linea
+#include <netinet/in.h> //Para sockaddr_in
 
 extern int cliente;
 extern int server_socket, client_socket;
 
 struct DatosDeJuego
 {
+    int partida;
     float posicion_bola_x;
     float posicion_bola_y;
     float dx;
@@ -33,5 +32,8 @@ struct ClientInfo
 };
 
 extern struct ClientInfo clients[];
+
+
+void inicializarArregloClientes();
 
 #endif

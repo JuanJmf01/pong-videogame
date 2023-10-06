@@ -10,23 +10,11 @@
 
 #include "manejarPelota.h"
 #include "../variables/variablesCompartidas.h"
-
-#define ADRESS_IP "localhost"
-#define PORT "3930"
-
-#define ANCHO_PANTALLA 960
-#define LARGO_PANTALLA 720
-
-#define MAX_CLINTS 4
-
-// ANCHO BOLA :
-// ANCHO RAQUERA :
-// ALTO RAQUETA :
-// ALTO PANTALLA :
-// ANCHO PANTALLA :
+#include "../variables/constantes.h"
 
 void *calcularPosicionBola(void *juegoDatos)
 {
+
     struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
     // int numPosiciones = datos[0].numPosiciones;
 
@@ -39,13 +27,14 @@ void *calcularPosicionBola(void *juegoDatos)
         float jugador1 = datos->raqueta_j1;
         float jugador2 = datos->raqueta_j2;
 
+        int posicionJugador1 = datos->partida * 2;
+
         x += dx;
         y += dy;
 
-
         // Colisiones
         // Choque con la parte inferior y superior
-        if (y >= LARGO_PANTALLA)
+        if (y >= altoPantalla)
         {
             dy *= -1;
         }
@@ -56,31 +45,30 @@ void *calcularPosicionBola(void *juegoDatos)
         }
 
         // Verificar colision con las raquetas
-        if (x > (960 - 50 + 11 - 10) && (x - 11 < 960 - 10) &&
-            (y + 11 > jugador2) && (y - 11 < jugador2 + 240 / 2))
+        if (x > (anchoPantalla - posicionVerticalRaqueta1 + radioBola - 10) && (x - radioBola < anchoPantalla - 10) &&
+            (y + radioBola > jugador2) && (y - radioBola < jugador2 + 240 / 2))
         {
             dx *= -1;
         }
-        if (x < (10 + 50 - 11) && (x + 11 > 10 + 10) &&
-            (y + 11 > jugador1) && (y - 11 < jugador1 + 240 / 2))
+        if (x < (10 + posicionVerticalRaqueta1 - radioBola) && (x + radioBola > 10 + 10) &&
+            (y + radioBola > jugador1) && (y - radioBola < jugador1 + 240 / 2))
         {
             dx *= -1;
         }
-
 
         if (x <= 0)
         {
             // La bola salio por el lado izquierdo, reiniciar desde el centro hacia la derecha
-            x = 960 / 2;
-            y = 720 / 2;
+            x = anchoPantalla / 2;
+            y = altoPantalla / 2;
             dx *= 1;
         }
 
-        if (x >= 960)
+        if (x >= anchoPantalla)
         {
             // La bola salio por el lado derecho, reiniciar desde el centro hacia la izquierda
-            x = 960 / 2;
-            y = 720 / 2;
+            x = anchoPantalla / 2;
+            y = altoPantalla / 2;
             dx *= -1;
         }
 
@@ -92,7 +80,8 @@ void *calcularPosicionBola(void *juegoDatos)
         char buffer_jugador1[64];
         char buffer_jugador2[64];
 
-        float x2 = ANCHO_PANTALLA - x;
+        // Definimos nuevas variables 'x2' y 'dx2' para manejar vizualizacion en reflejo para jugador opuesto
+        float x2 = anchoPantalla - x;
         float dx2 = -dx;
 
         snprintf(buffer_jugador1, sizeof(buffer_jugador1), "POSICION_PELOTA:%f,%f,%f,%f", x, y, dx, dy);
@@ -101,9 +90,10 @@ void *calcularPosicionBola(void *juegoDatos)
         struct sockaddr_in client_addr;
         socklen_t addr_size = sizeof(client_addr);
 
-        for (int i = 0; i < MAX_CLINTS; i++)
+        for (int i = posicionJugador1; i <= posicionJugador1 + 1; i++)
         {
             int puertoReceptor = clients[i].client_port;
+            printf("POSICION JUGADOR 1 %d", posicionJugador1);
 
             client_addr.sin_family = AF_UNSPEC;
             client_addr.sin_port = htons(puertoReceptor);
