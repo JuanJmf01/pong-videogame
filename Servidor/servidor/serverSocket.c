@@ -120,53 +120,23 @@ void conectTwoPlayers(struct DatosDeJuego *datos)
                             if (i % 2 != 0)
                             {
                                 puertoReceptor = clients[i - 1].client_port;
-                                int valor_jugador = clients[i - 1].socket;
-                                printf("PUERTO_RECEPTOR: %d", puertoReceptor);
-                                printf("VALOR JUGADOR 1: %d", valor_jugador);
+                                valor_jugador = clients[i - 1].socket;
+                                printf("PUERTO_RECEPTOR 1: %d\n", puertoReceptor);
+                                // printf("VALOR JUGADOR 1: %d\n,", valor_jugador);
                             }
                             else
                             {
                                 puertoReceptor = clients[i + 1].client_port;
-                                int valor_jugador = clients[i + 1].socket;
-                                printf("PUERTO_RECEPTOR: %d", puertoReceptor);
-                                printf("VALOR JUGADOR 2: %d", valor_jugador);
+                                valor_jugador = clients[i + 1].socket;
+                                printf("PUERTO_RECEPTOR 2: %d\n", puertoReceptor);
+                                // printf("VALOR JUGADOR 2: %d\n", valor_jugador);
                             }
 
                             pthread_t hilos_partidas[2];
 
                             if (valor_jugador != -1)
                             {
-                                
-                                
-
-                                // int partida_disponible = -1;
-
-                                // for (int i = 0; i < 2; i++)
-                                // {
-                                //     if (datosDeJuego[i].posicion_bola_x == 0.0 && datosDeJuego[i].posicion_bola_y == 0.0)
-                                //     {
-                                //         printf("DATOS DE JUEGO : %f", datosDeJuego[i].posicion_bola_x);
-                                //         partida_disponible = i;
-                                //         break;
-                                //     }
-                                // }
-
-                                // if (partida_disponible != -1)
-                                // {
-                                //     printf("Entra a crear hilo");
-                                
-
-                                //     // Crea un hilo para la nueva partida y pasa el puntero a la estructura de datos
-                                //     if (pthread_create(&hilos_partidas[partida_disponible], NULL, calcularPosicionBola, (void *)&datosDeJuego[partida_disponible]) != 0)
-                                //     {
-                                //         perror("Error al crear el hilo de la partida");
-                                //     }
-                                // }
-                                // else
-                                // {
-                                //     // No se encontró una partida disponible, puedes manejar esto de acuerdo a tus necesidades
-                                //     printf("No hay partidas disponibles en este momento.\n");
-                                // }
+                                printf("ENTRO \n");
 
                                 client_addr.sin_family = AF_UNSPEC;
                                 client_addr.sin_port = htons(puertoReceptor);
@@ -190,32 +160,67 @@ void conectTwoPlayers(struct DatosDeJuego *datos)
                                     printf("_MI I_ 2: %d\n", i);
                                     partida = 0;
                                 }
-                                printf("PARTIDA PARA: %d \n", partida);
+
+                                // int partida_disponible = -1;
+                                // printf("PARTIDA DISPONIBLE ANTES : %d \n", partida_disponible);
+
+                                // for (int i = 0; i < 2; i++)
+                                // {
+                                //     if (datosDeJuego[i].posicion_bola_x == 0.0 && datosDeJuego[i].posicion_bola_y == 0.0)
+                                //     {
+                                //         printf("DATOS DE JUEGO : %f \n", datosDeJuego[i].posicion_bola_x);
+                                //         partida_disponible = i;
+                                //         break;
+                                //     }
+                                // }
+                                // printf("PARTIDA DISPONIBLE DESPUES : %d \n", partida_disponible);
+
+                                if (datosDeJuego[partida].posicion_bola_x == 480 && datosDeJuego[partida].posicion_bola_y == 360)
+                                {
+                                    printf("Entra a crear hilo en la partida disponible: %d \n", partida);
+
+                                    // Crea un hilo para la nueva partida y pasa el puntero a la estructura de datos
+                                    if (pthread_create(&hilos_partidas[partida], NULL, calcularPosicionBola, (void *)&datosDeJuego[partida]) != 0)
+                                    {
+                                        perror("Error al crear el hilo de la partida");
+                                    }
+                                }
+                                else
+                                {
+                                    // No se encontró una partida disponible, puedes manejar esto de acuerdo a tus necesidades
+                                    printf("No hay partidas disponibles en este momento.\n");
+                                }
+
                                 if (strncmp(verification_message, "jugador1_up", strlen("jugador1_up")) == 0)
                                 {
-
+                                    const char *numero_str = verification_message + strlen("jugador1_up");
+                                    float numero = atof(numero_str);
                                     if (i % 2 == 0)
                                     {
-                                        datos[partida].raqueta_j1 += 20;
+                                        datos[partida].raqueta_j1 = numero;
                                     }
                                     else
                                     {
-                                        datos[partida].raqueta_j2 += 20;
+                                        datos[partida].raqueta_j2 = numero;
                                     }
                                 }
                                 if (strncmp(verification_message, "jugador1_down", strlen("jugador1_down")) == 0)
                                 {
+                                    // Asumimos que verification_message tiene el formato "jugador1_downX" donde X es el número
+                                    const char *numero_str = verification_message + strlen("jugador1_down");
+                                    float numero = atof(numero_str);
+
                                     if (i % 2 == 0)
                                     {
-                                        datos[partida].raqueta_j1 -= 20;
+                                        datos[partida].raqueta_j1 = numero;
                                     }
                                     else
                                     {
-                                        datos[partida].raqueta_j2 -= 20;
+                                        datos[partida].raqueta_j2 = numero;
                                     }
                                 }
 
-                                printf("MI NUEVA POSICION 1: %f\n", datos[partida].raqueta_j1);
+                                                                                                                                                                                                                                                                                                             printf("MI NUEVA POSICION 1: %f\n", datos[partida].raqueta_j1);
                                 printf("MI NUEVA POSICION 2: %f\n", datos[partida].raqueta_j2);
 
                                 sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));

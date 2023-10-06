@@ -25,10 +25,10 @@ void inicializarPosicionBola()
 {
     for (int i = 0; i < 2; i++)
     {
-        datosDeJuego[i].posicion_bola_x = 0.0;
-        datosDeJuego[i].posicion_bola_y = 0.0;
-        datosDeJuego[i].dx = 5;
-        datosDeJuego[i].dy = 5;
+        datosDeJuego[i].posicion_bola_x = 480;
+        datosDeJuego[i].posicion_bola_y = 360;
+        datosDeJuego[i].dx = 7;
+        datosDeJuego[i].dy = 7;
     }
 }
 

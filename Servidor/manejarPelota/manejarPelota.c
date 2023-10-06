@@ -14,7 +14,16 @@
 #define ADRESS_IP "localhost"
 #define PORT "3930"
 
+#define ANCHO_PANTALLA 960
+#define LARGO_PANTALLA 720
+
 #define MAX_CLINTS 4
+
+// ANCHO BOLA :
+// ANCHO RAQUERA :
+// ALTO RAQUETA :
+// ALTO PANTALLA :
+// ANCHO PANTALLA :
 
 void *calcularPosicionBola(void *juegoDatos)
 {
@@ -33,49 +42,45 @@ void *calcularPosicionBola(void *juegoDatos)
         x += dx;
         y += dy;
 
-        // printf("MIS POSICIONES: %f : %f,\n", x, y);
 
-        // Detectar choque con la pared superior
-        if (y > 350)
+        // Colisiones
+        // Choque con la parte inferior y superior
+        if (y >= LARGO_PANTALLA)
         {
-            y = 350;
             dy *= -1;
         }
 
-        // Detecta rchoque con la pared inferior
-        if (y < -350)
+        if (y <= 0)
         {
-            y = -350;
             dy *= -1;
         }
 
-        // Detectar choque con la pared derecha
-        if (x > 440)
+        // Verificar colision con las raquetas
+        if (x > (960 - 50 + 11 - 10) && (x - 11 < 960 - 10) &&
+            (y + 11 > jugador2) && (y - 11 < jugador2 + 240 / 2))
         {
-            x = 0;
-            y = 0;
+            dx *= -1;
+        }
+        if (x < (10 + 50 - 11) && (x + 11 > 10 + 10) &&
+            (y + 11 > jugador1) && (y - 11 < jugador1 + 240 / 2))
+        {
             dx *= -1;
         }
 
-        // Detectar choque con la pared izquierda
-        if (x < -440)
+
+        if (x <= 0)
         {
-            x = 0;
-            y = 0;
-            dx *= -1;
+            // La bola salio por el lado izquierdo, reiniciar desde el centro hacia la derecha
+            x = 960 / 2;
+            y = 720 / 2;
+            dx *= 1;
         }
 
-        // Choque con la raqueta del jugador 2
-        if (x > 390 && y < jugador2 + 50 && y > jugador2 - 50)
+        if (x >= 960)
         {
-            x = 390;
-            dx *= -1;
-        }
-
-        // Choque con la raqueta del jugador 1
-        if (x < -390 && y < jugador1 + 50 && y > jugador1 - 50)
-        {
-            x = -390;
+            // La bola salio por el lado derecho, reiniciar desde el centro hacia la izquierda
+            x = 960 / 2;
+            y = 720 / 2;
             dx *= -1;
         }
 
@@ -87,8 +92,11 @@ void *calcularPosicionBola(void *juegoDatos)
         char buffer_jugador1[64];
         char buffer_jugador2[64];
 
+        float x2 = ANCHO_PANTALLA - x;
+        float dx2 = -dx;
+
         snprintf(buffer_jugador1, sizeof(buffer_jugador1), "POSICION_PELOTA:%f,%f,%f,%f", x, y, dx, dy);
-        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "POSICION_PELOTA:%f,%f,%f,%f", -x, y, dx, dy);
+        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "POSICION_PELOTA:%f,%f,%f,%f", x2, y, dx2, dy);
 
         struct sockaddr_in client_addr;
         socklen_t addr_size = sizeof(client_addr);
