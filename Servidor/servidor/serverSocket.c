@@ -11,7 +11,6 @@
 #include "../manejarPelota/manejarPelota.h"
 #include "../variables/constantes.h"
 
-
 void startGame(int clientesAdd, ssize_t bytes_received, struct sockaddr_in client_addr, struct DatosDeJuego *datos)
 {
 }
@@ -118,18 +117,18 @@ void conectTwoPlayers()
                             {
                                 puertoReceptor = clients[i - 1].client_port;
                                 valor_jugador = clients[i - 1].socket;
-                                //printf("PUERTO_RECEPTOR 1: %d\n", puertoReceptor);
+                                // printf("PUERTO_RECEPTOR 1: %d\n", puertoReceptor);
                                 printf("VALOR JUGADOR 1: %d\n,", valor_jugador);
                             }
                             else
                             {
                                 puertoReceptor = clients[i + 1].client_port;
                                 valor_jugador = clients[i + 1].socket;
-                                //printf("PUERTO_RECEPTOR 2: %d\n", puertoReceptor);
+                                // printf("PUERTO_RECEPTOR 2: %d\n", puertoReceptor);
                                 printf("VALOR JUGADOR 2: %d\n", valor_jugador);
                             }
 
-                            pthread_t hilos_partidas[2];
+                            pthread_t hilos_partidas[MAX_PARTIDAS];
 
                             if (valor_jugador != -1)
                             {
@@ -159,7 +158,7 @@ void conectTwoPlayers()
                                 }
                                 printf("MI PARTIDA: %d", partida);
 
-                                if (datosDeJuego[partida].posicion_bola_x == 480 && datosDeJuego[partida].posicion_bola_y == 360)
+                                if (datosDeJuego[partida].posicion_bola_x == anchoPantalla / 2 && datosDeJuego[partida].posicion_bola_y == altoPantalla / 2)
                                 {
                                     printf("Entra a crear hilo en la partida disponible: %d \n", partida);
 
@@ -169,7 +168,7 @@ void conectTwoPlayers()
                                         perror("Error al crear el hilo de la partida");
                                     }
                                 }
-                               
+
                                 if (strncmp(verification_message, "jugador1_up", strlen("jugador1_up")) == 0)
                                 {
                                     const char *numero_str = verification_message + strlen("jugador1_up");
@@ -215,7 +214,7 @@ void conectTwoPlayers()
 
 void defineSocket()
 {
-    //struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
+    // struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
 
     struct addrinfo hints, *res; // Utilizamos addrinfo para representar direcciones y nombres de host
 
