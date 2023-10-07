@@ -93,7 +93,7 @@ void *calcularPosicionBola(void *juegoDatos)
         for (int i = posicionJugador1; i <= posicionJugador1 + 1; i++)
         {
             int puertoReceptor = clients[i].client_port;
-            printf("POSICION JUGADOR 1 %d", posicionJugador1);
+            // printf("POSICION JUGADOR 1 %d", posicionJugador1);
 
             client_addr.sin_family = AF_UNSPEC;
             client_addr.sin_port = htons(puertoReceptor);
@@ -112,7 +112,7 @@ void *calcularPosicionBola(void *juegoDatos)
                 strcpy(buffer, buffer_jugador2);
             }
 
-            sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
+            sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&clients[i].client_addr, sizeof(clients->client_addr));
         }
         usleep(50000); // controlar la velocidad de actualizacion
     }

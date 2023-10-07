@@ -13,7 +13,7 @@ del juego depenten totalmente del nivel estala. EL nivel escala es utilizado par
 
 int altoOriginal = 480;
 int anchoOriginal = 640;
-float nivelEscala = 1.0;
+float nivelEscala = 1.5;
 int anchoRaqueta = 10;
 
 int posicionVerticalRaqueta1 = 50;
