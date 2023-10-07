@@ -112,6 +112,7 @@ void conectTwoPlayers()
                         {
                             int puertoReceptor;
                             int valor_jugador;
+                            int posicionReceptor;
 
                             if (i % 2 != 0)
                             {
@@ -119,6 +120,7 @@ void conectTwoPlayers()
                                 valor_jugador = clients[i - 1].socket;
                                 // printf("PUERTO_RECEPTOR 1: %d\n", puertoReceptor);
                                 printf("VALOR JUGADOR 1: %d\n,", valor_jugador);
+                                posicionReceptor = i - 1;
                             }
                             else
                             {
@@ -126,6 +128,7 @@ void conectTwoPlayers()
                                 valor_jugador = clients[i + 1].socket;
                                 // printf("PUERTO_RECEPTOR 2: %d\n", puertoReceptor);
                                 printf("VALOR JUGADOR 2: %d\n", valor_jugador);
+                                posicionReceptor = i + 1;
                             }
 
                             pthread_t hilos_partidas[MAX_PARTIDAS];
@@ -199,8 +202,12 @@ void conectTwoPlayers()
 
                                 printf("MI NUEVA POSICION 1: %f\n", datosDeJuego[partida].raqueta_j1);
                                 printf("MI NUEVA POSICION 2: %f\n", datosDeJuego[partida].raqueta_j2);
+                                //char *ip_str = inet_ntoa(clients[posicionReceptor].client_addr);
 
-                                sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
+                                //printf("CLIENTE ADDR : %s\n", clients[posicionReceptor].client_addr.sin_addr);
+                                //printf("PUERTO RECEPTOR : %d \n", puertoReceptor);
+
+                                sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&clients[posicionReceptor].client_addr, sizeof(clients[posicionReceptor].client_addr));
                                 printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
                                 break;
                             }

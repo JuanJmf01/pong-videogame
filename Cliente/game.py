@@ -6,7 +6,7 @@ import pygame
 import queue
 
 
-SERVER_IP = "localhost"
+SERVER_IP = "54.208.204.28"
 SERVER_PORT = 3930
 
 cola_de_mensajes = queue.Queue()
@@ -27,7 +27,7 @@ pygame.init()
 
 # Configuracion de la ventana del juego
 anchoOriginal, altoOriginal = 640, 480
-nivelEscala = 1.0   
+nivelEscala = 1.5   
 anchoPantalla, altoPantalla = int(
     anchoOriginal * nivelEscala), int(altoOriginal * nivelEscala)
 pantalla = pygame.display.set_mode((anchoPantalla, altoPantalla))
