@@ -18,12 +18,12 @@ int anchoRaqueta = 10;
 
 int posicionVerticalRaqueta1 = 50;
 
-int altoPantalla;
-int anchoPantalla;
-int altoRaqueta;
-int posicionVerticalRaqueta2;
-int diametroBola;
-int radioBola;
+int altoPantalla; //720 
+int anchoPantalla; //960
+int altoRaqueta; //120
+int posicionVerticalRaqueta2; //910
+int diametroBola; //22
+int radioBola; //11
 
 void inicializarConstantes()
 {
