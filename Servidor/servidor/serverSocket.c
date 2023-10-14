@@ -60,6 +60,9 @@ void conectTwoPlayers()
     que se deben estar monitoreando ya que select debe saber cuantos descriptores de arvhivo va a monitorear */
     max_fileDescriptor = server_socket;
     int clientesAdd = 0;
+    int banderita = 0;
+    //pthread_t hilos_partidas[MAX_PARTIDAS];
+    pthread_t hilos_partidas[1];
 
     while (1)
     {
@@ -88,7 +91,7 @@ void conectTwoPlayers()
 
                 if (strncmp(verification_message, "clientConnect", strlen("clientConnect")) == 0)
                 {
-                    printf("Mensaje del cliente: %s\n", verification_message);
+                    //printf("Mensaje del cliente: %s\n", verification_message);
                     newClient(client_addr);
                     clientesAdd++;
                     cliente++;
@@ -119,7 +122,7 @@ void conectTwoPlayers()
                                 puertoReceptor = clients[i - 1].client_port;
                                 valor_jugador = clients[i - 1].socket;
                                 // printf("PUERTO_RECEPTOR 1: %d\n", puertoReceptor);
-                                printf("VALOR JUGADOR 1: %d\n,", valor_jugador);
+                                //printf("VALOR JUGADOR 1: %d\n,", valor_jugador);
                                 posicionReceptor = i - 1;
                             }
                             else
@@ -127,15 +130,15 @@ void conectTwoPlayers()
                                 puertoReceptor = clients[i + 1].client_port;
                                 valor_jugador = clients[i + 1].socket;
                                 // printf("PUERTO_RECEPTOR 2: %d\n", puertoReceptor);
-                                printf("VALOR JUGADOR 2: %d\n", valor_jugador);
+                                //printf("VALOR JUGADOR 2: %d\n", valor_jugador);
                                 posicionReceptor = i + 1;
                             }
 
-                            pthread_t hilos_partidas[MAX_PARTIDAS];
+                          
 
                             if (valor_jugador != -1)
                             {
-                                printf("ENTRO \n");
+                                //printf("ENTRO \n");
 
                                 client_addr.sin_family = AF_UNSPEC;
                                 client_addr.sin_port = htons(puertoReceptor);
@@ -144,7 +147,7 @@ void conectTwoPlayers()
                                 int partida;
                                 if (i >= 2)
                                 {
-                                    printf("_MI I_ 1: %d \n", i);
+                                    //printf("_MI I_ 1: %d \n", i);
                                     if (i % 2 == 0)
                                     {
                                         partida = i / 2;
@@ -156,12 +159,13 @@ void conectTwoPlayers()
                                 }
                                 else
                                 {
-                                    printf("_MI I_ 2: %d\n", i);
+                                    //printf("_MI I_ 2: %d\n", i);
                                     partida = 0;
                                 }
-                                printf("MI PARTIDA: %d", partida);
+                                //printf("MI PARTIDA: %d\n", partida);
 
-                                if (datosDeJuego[partida].posicion_bola_x == anchoPantalla / 2 && datosDeJuego[partida].posicion_bola_y == altoPantalla / 2)
+                                //if (datosDeJuego[partida].posicion_bola_x == anchoPantalla / 2 && datosDeJuego[partida].posicion_bola_y == altoPantalla / 2)
+                                if(banderita == 0)
                                 {
                                     printf("Entra a crear hilo en la partida disponible: %d \n", partida);
 
@@ -170,6 +174,7 @@ void conectTwoPlayers()
                                     {
                                         perror("Error al crear el hilo de la partida");
                                     }
+                                    banderita = 1;
                                 }
 
                                 if (strncmp(verification_message, "jugador1_up", strlen("jugador1_up")) == 0)
@@ -200,15 +205,17 @@ void conectTwoPlayers()
                                     }
                                 }
 
-                                printf("MI NUEVA POSICION 1: %f\n", datosDeJuego[partida].raqueta_j1);
-                                printf("MI NUEVA POSICION 2: %f\n", datosDeJuego[partida].raqueta_j2);
+                                //printf("MI NUEVA POSICION 1: %f\n", datosDeJuego[partida].raqueta_j1);
+                                //printf("MI NUEVA POSICION 2: %f\n", datosDeJuego[partida].raqueta_j2);
+                                //printf("VELOCIDAD SERVIDOR_x: %f\n", datosDeJuego[partida].dx);
+                                //printf("VELOCIDAD SERVIDOR_y: %f\n", datosDeJuego[partida].dy);
                                 //char *ip_str = inet_ntoa(clients[posicionReceptor].client_addr);
 
                                 //printf("CLIENTE ADDR : %s\n", clients[posicionReceptor].client_addr.sin_addr);
                                 //printf("PUERTO RECEPTOR : %d \n", puertoReceptor);
 
                                 sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&clients[posicionReceptor].client_addr, sizeof(clients[posicionReceptor].client_addr));
-                                printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
+                                //printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
                                 break;
                             }
                         }
@@ -219,7 +226,7 @@ void conectTwoPlayers()
     }
 }
 
-void defineSocket()
+void *defineSocket(void *juegoDatos)
 {
     // struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
 

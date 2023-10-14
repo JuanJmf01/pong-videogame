@@ -6,10 +6,10 @@ import pygame
 import queue
 
 
-SERVER_IP = "54.208.204.28"
+SERVER_IP = "localhost"
 SERVER_PORT = 3930
 
-cola_de_mensajes = queue.Queue()
+cola_de_mensajes = queue.Queue(maxsize=5)
 
 # Crear un socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -124,7 +124,7 @@ def juego_grafica():
         if not cola_de_mensajes.empty():
             mensaje = cola_de_mensajes.get()
 
-            #print("GET COLA: ", mensaje)
+            print("GET COLA: ", mensaje)
 
             mensaje = mensaje[len("POSICION_PELOTA:"):]
             mensaje = mensaje.replace('\x00', '')
@@ -156,8 +156,6 @@ def juego_grafica():
         pygame.time.Clock().tick(30)
 
 # FUncion para enviar y recibir mensajes del servidor
-
-
 def recibir_enviar_mms():
     while True:
         # Configurar la lista de sockets para select()
@@ -180,7 +178,12 @@ def recibir_enviar_mms():
                 data, server_address = client_socket.recvfrom(1024)
                 data_str = data.decode("utf-8")  # Decodificar data a str
                 if data_str.startswith("POSICION_PELOTA:"):
-                    cola_de_mensajes.put(data_str)
+                    try:
+                        cola_de_mensajes.put_nowait(data_str)
+                    except queue.Full:
+                        # La cola está llena, eliminar el mensaje más antiguo
+                        cola_de_mensajes.get_nowait()  # Eliminar el mensaje más antiguo
+                        cola_de_mensajes.put_nowait(data_str)
                 else:
                     actualizar_juego(data)
                     print("Actualizar juego")
