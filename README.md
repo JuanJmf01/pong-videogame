@@ -65,7 +65,7 @@ Se inicializa el servidor y se crea un socket, donde se pueden unir dos clientes
 
 Con el comando 
 ```bash
-python.game.py 
+python3.game.py 
 ```
  inicializamos el juego como cliente.
 
