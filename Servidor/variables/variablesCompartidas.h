@@ -3,7 +3,7 @@
 
 #include <netinet/in.h> //Para sockaddr_in
 
-extern int server_socket
+extern int server_socket;
 extern pthread_t hilos_partidas[];
 
 
@@ -16,6 +16,8 @@ struct DatosDeJuego
     float dy;
     float raqueta_j1;
     float raqueta_j2;
+    float puntaje_j1;
+    float puntaje_j2;
 };
 
 extern struct DatosDeJuego datosDeJuego[];
@@ -31,6 +33,7 @@ struct ClientInfo
     enviar datos a traves de un socket de red. */
     struct sockaddr_in client_addr;
     int numeroDePartida;
+    char *nombre;
 };
 
 extern struct ClientInfo clients[];

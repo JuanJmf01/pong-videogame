@@ -37,7 +37,7 @@ void definirPosicionBola(struct DatosDeJuego *datos)
         dy *= -1;
     }
 
-    // CHoque con la raqueta del jugador1
+    // Choque con la raqueta del jugador1
     if (x <= 0 + posicionHorizontalRaqueta1 + 10 && y >= jugador1 && y <= jugador1 + altoRaqueta)
     {
         dx *= -1;
@@ -55,6 +55,7 @@ void definirPosicionBola(struct DatosDeJuego *datos)
         x = anchoPantalla / 2;
         y = altoPantalla / 2;
         dx *= -1;
+        datos->puntaje_j2 += 1.0;
     }
 
     // Choque con el lado derecho de la pantalla
@@ -63,6 +64,7 @@ void definirPosicionBola(struct DatosDeJuego *datos)
         x = anchoPantalla / 2;
         y = altoPantalla / 2;
         dx *= -1;
+        datos->puntaje_j1 += 1.0;
     }
 
     datos->posicion_bola_x = x;
@@ -85,24 +87,26 @@ void *enviarPosicionBola(void *juegoDatos)
         float y = datos->posicion_bola_y;
         float dx = datos->dx;
         float dy = datos->dy;
+        float puntaje_j1 = datos->puntaje_j1;
+        float puntaje_j2 = datos->puntaje_j2;
         definirPosicionBola(datos);
 
-        char buffer_jugador1[64];
-        char buffer_jugador2[64];
+        char buffer_jugador1[128];
+        char buffer_jugador2[128];
 
         // Definimos nuevas variables 'x2' y 'dx2' para manejar vizualizacion en reflejo para jugador opuesto
         float x2 = anchoPantalla - x;
         float dx2 = -dx;
 
-        snprintf(buffer_jugador1, sizeof(buffer_jugador1), "POSICION_PELOTA:%f,%f,%f,%f", x, y, dx, dy);
-        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "POSICION_PELOTA:%f,%f,%f,%f", x2, y, dx2, dy);
+        snprintf(buffer_jugador1, sizeof(buffer_jugador1), "GAME:%f,%f,%f,%f,%f,%f", x, y, dx, dy, puntaje_j1, puntaje_j2);
+        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "GAME:%f,%f,%f,%f,%f,%f", x2, y, dx2, dy, puntaje_j1, puntaje_j2);
 
         for (int i = posicionJugador1; i <= posicionJugador1 + 1; i++)
         {
             int puertoReceptor = clients[i].client_port;
             // printf("POSICION JUGADOR 1 %d", posicionJugador1);
 
-            char buffer[64];
+            char buffer[128];
 
             if (i % 2 == 0)
             {
