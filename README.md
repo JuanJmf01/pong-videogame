@@ -5,5 +5,6 @@ de este fue aprender como por medio de sockets podriamos conectar un servidor en
 ## Desarrollo
 Podemos poner aca los comandos y dependencias y como configurar y utilizar el proyecto
 ## Uso
-Aca podemos poner instrucciones para jugar el juego y como jugarlo desde nuestro pc
+Con el comando ./main.out se inicializa el servidor y se crea un socket.
+Con el comando python.game.py inicializamos el juego como cliente.
 ## Conclusiones
