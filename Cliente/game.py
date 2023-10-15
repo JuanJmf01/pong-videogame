@@ -5,7 +5,6 @@ import threading
 import pygame
 import queue
 
-
 SERVER_IP = "localhost"
 SERVER_PORT = 3930
 
@@ -13,6 +12,19 @@ cola_de_mensajes = queue.Queue(maxsize=5)
 
 # Crear un socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
+# Enviar un mensaje de confirmacion al servidor
+def enviaConfirmacionServidor(nombre):
+    try:
+        print("Nombre ingresado:", nombre)
+        mensaje = 'clientConnect:' + nombre
+        client_socket.sendto(mensaje.encode(), (SERVER_IP, SERVER_PORT))
+        print("Confirmacion enviada: ", mensaje)
+
+    except:
+        print("Error al enviar la confirmacion")
+
 
 # Inicializar Pygame
 pygame.init()
@@ -26,8 +38,8 @@ anchoPantalla, altoPantalla = int(
 pantalla = pygame.display.set_mode((anchoPantalla, altoPantalla))
 pygame.display.set_caption("TelePong")
 
-# print("ANCHO PANTALLA: ", anchoPantalla) #960
-# print("Alto PANTALLA: ", altoPantalla)  #720
+ventana = pygame.display.set_mode((anchoOriginal, altoOriginal))
+pygame.display.set_caption("Pong")
 
 # Define colores
 color_fondo_caja = (0, 0, 0)  # Fondo negro
@@ -45,6 +57,41 @@ fuente = pygame.font.Font(ruta_fuente, 15)  # Ajusta el tamaño de la fuente seg
 black = (0, 0, 0)
 white = (255, 255, 255)
 
+# Fuentes
+fuente = pygame.font.Font(None, 36)
+
+# Titulo "Pong"
+titulo = fuente.render("Pong", True, white)
+titulo_rect = titulo.get_rect(center=(anchoOriginal // 2, 50))
+
+# Campo de entrada de nombre
+input_rect = pygame.Rect(
+    anchoOriginal // 4, altoOriginal // 2, anchoOriginal // 2, 32)
+color_activo = pygame.Color('lightskyblue3')
+color_inactivo = pygame.Color('dodgerblue2')
+color = color_inactivo
+nombre = ""
+texto = fuente.render(nombre, True, color)
+texto_rect = texto.get_rect(center=input_rect.center)
+
+# Boton "Play"
+boton = pygame.Rect(anchoOriginal // 4, altoOriginal *
+                    3 / 4, anchoOriginal // 2, 50)
+texto_boton = fuente.render("Play", True, black)
+texto_boton_rect = texto_boton.get_rect(center=boton.center)
+
+# Variables para los puntajes iniciales
+puntaje_jugador1 = 0
+puntaje_jugador2 = 0
+
+# Textos de puntaje (inicialmente vacios)
+texto_puntaje_jugador1 = fuente.render('', True, white)
+texto_puntaje_jugador2 = fuente.render('', True, white)
+
+# Posiciones de los textos de puntaje
+pos_puntaje_jugador1 = (anchoPantalla/6, 20)
+pos_puntaje_jugador2 = (anchoPantalla - (anchoPantalla/3), 20)
+
 # Palos
 anchoRaqueta, altoRaqueta = 10, int(80 * nivelEscala)
 paletaJugador1 = pygame.Rect(
@@ -58,70 +105,11 @@ bola = pygame.Rect(anchoPantalla // 2 - int(7.5 * nivelEscala), altoPantalla //
 velocidadBola_x = int(8 * nivelEscala)
 velocidadBola_y = int(8 * nivelEscala)
 
-# print("ALTO RAQUETA: ", altoRaqueta) #120
-# print("ANCHO RAQUETA: ", anchoRaqueta) #10
-# print("ALEJAMIENTO RAQUETA: ", paletaJugador1) # <rect(50, 300, 10, 120)>
-# print("BOLA: ", bola) # <rect(469, 349, 22, 22)>
-
-def obtener_apodo_usuario():
-    pygame.font.init()
-    # Ajusta el ancho del cuadro de entrada
-    input_box = pygame.Rect(0, 0, 140, 32)  # Ajusta el ancho según tus preferencias
-    # Centra la caja horizontal y verticalmente
-    input_box.center = (anchoPantalla // 2, altoPantalla // 2)
-
-    active = False
-    text = ""
-
-    mensaje = "Ingresa aquí tu apodo para continuar"
-    mensaje_surface = fuente.render(mensaje, True, color_texto)
-    mensaje_rect = mensaje_surface.get_rect()
-    mensaje_rect.center = (anchoPantalla // 2, input_box.y - 40)  # Centra el mensaje arriba de la caja
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    active = not active
-                else:
-                    active = False
-            if event.type == pygame.KEYDOWN:
-                if active:
-                    if event.key == pygame.K_RETURN:
-                        apodo = text
-                        return apodo
-                    elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                    else:
-                        text += event.unicode
-
-        pantalla.fill((0, 0, 0))  # Color de fondo de la ventana
-        pygame.draw.rect(pantalla, color_fondo_caja, input_box)
-        pygame.draw.rect(pantalla, color_borde_caja, input_box, 2)
-        pantalla.blit(mensaje_surface, mensaje_rect)
-        txt_surface = fuente.render(text, True, color_texto)
-        width = max(140, txt_surface.get_width() + 10)
-        input_box.w = width
-        pantalla.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
-        pygame.display.flip()
-
-
-# Enviar un mensaje de confirmacion al servidor
-try:
-    client_socket.sendto(b'clientConnect', (SERVER_IP, SERVER_PORT))
-    print("Confirmacion enviada")
-    user_nickname = obtener_apodo_usuario()
-    print(f"Apodo del usuario: {user_nickname}")
-except:
-    print("Error al enviar la confirmacion")
-    
-
-
+entrada_activa = False
 
 # Funciones para movimiento de jugador 1
+
+
 def jugador1_sube():
     print("MENSAJE SUBIR")
     y = paletaJugador1.y
@@ -158,9 +146,53 @@ def actualizar_juego(data):
     paletaJugador2.y = int(mensaje)
 
 
-# Función para el bucle del juego gráfico
+def juego_inicial():
+    global entrada_activa, nombre
+    color = color_inactivo
+    texto = fuente.render(nombre, True, color)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_rect.collidepoint(event.pos):
+                    entrada_activa = not entrada_activa
+                else:
+                    entrada_activa = False
+                color = color_activo if entrada_activa else color_inactivo
+            if event.type == pygame.KEYDOWN:
+                if entrada_activa:
+                    if event.key == pygame.K_RETURN:
+                        # Aqui puedes manejar la accion cuando se presiona "Enter"
+                        print("Nombre ingresado:", nombre)
+                    elif event.key == pygame.K_BACKSPACE:
+                        nombre = nombre[:-1]
+                    else:
+                        nombre += event.unicode
+                    texto = fuente.render(nombre, True, color)
+            # Evento para el boton "Play"
+            if event.type == pygame.MOUSEBUTTONDOWN and boton.collidepoint(event.pos) and nombre:
+                if nombre is not None:
+                    enviaConfirmacionServidor(nombre)
+                    juego_grafica()
+
+                    break
+                else:
+                    print("Ingresa un nombre para continuar")
+
+        # Dibujar el campo de entrada y el boton "Play"
+        pygame.draw.rect(pantalla, color, input_rect, 2)
+        pantalla.blit(texto, texto_rect)
+        pygame.draw.rect(pantalla, white, boton)
+        pantalla.blit(texto_boton, texto_boton_rect)
+
+        pygame.display.flip()
+
+
+# Funcion para el bucle del juego grafico
 def juego_grafica():
-    global velocidadBola_x, velocidadBola_y
+    global velocidadBola_x, velocidadBola_y, puntaje_jugador1, puntaje_jugador2
 
     while True:
         for event in pygame.event.get():
@@ -168,7 +200,7 @@ def juego_grafica():
                 pygame.quit()
                 sys.exit()
 
-        llave = pygame.key.get_pressed()    
+        llave = pygame.key.get_pressed()
         if llave[pygame.K_w] and paletaJugador1.centery > 0:
             jugador1_sube()
 
@@ -180,13 +212,13 @@ def juego_grafica():
 
             print("GET COLA: ", mensaje)
 
-            mensaje = mensaje[len("POSICION_PELOTA:"):]
+            mensaje = mensaje[len("GAME:"):]
             mensaje = mensaje.replace('\x00', '')
             partes = mensaje.split(',')
 
-            if len(partes) == 4:
-                # Obtener las partes como valores numéricos
-                x, y, dx, dy = map(float, partes)
+            if len(partes) == 6:
+                # Obtener las partes como valores numericos
+                x, y, dx, dy, puntaje1, puntaje2 = map(float, partes)
 
                 # Actualiza la posicion de la bola usando las nuevas coordenadas
                 bola.x = x
@@ -194,6 +226,10 @@ def juego_grafica():
                 # Actualiza las velocidades de la bola
                 velocidadBola_x = dx
                 velocidadBola_y = dy
+
+                # Actualiza los puntajes
+                puntaje_jugador1 = str(puntaje1)
+                puntaje_jugador2 = str(puntaje2)
 
 
         # Dibujar todo en la pantalla
@@ -204,10 +240,21 @@ def juego_grafica():
         pygame.draw.aaline(pantalla, white, (anchoPantalla //
                            2, 0), (anchoPantalla // 2, altoPantalla))
 
+        # Actualizar los textos de puntaje
+        texto_puntaje_jugador1 = fuente.render(
+            f'Jugador 1: {puntaje_jugador1}', True, white)
+        texto_puntaje_jugador2 = fuente.render(
+            f'Jugador 2: {puntaje_jugador2}', True, white)
+
+        # Dibujar los textos de puntaje en la pantalla
+        pantalla.blit(texto_puntaje_jugador1, pos_puntaje_jugador1)
+        pantalla.blit(texto_puntaje_jugador2, pos_puntaje_jugador2)
+
         pygame.display.flip()
 
         # Control de velocidad
         pygame.time.Clock().tick(15)
+
 
 # FUncion para enviar y recibir mensajes del servidor
 def recibir_enviar_mms():
@@ -231,12 +278,12 @@ def recibir_enviar_mms():
                 # Datos recibidos del servidor
                 data, server_address = client_socket.recvfrom(1024)
                 data_str = data.decode("utf-8")  # Decodificar data a str
-                if data_str.startswith("POSICION_PELOTA:"):
+                if data_str.startswith("GAME:"):
                     try:
                         cola_de_mensajes.put_nowait(data_str)
                     except queue.Full:
-                        # La cola está llena, eliminar el mensaje más antiguo
-                        cola_de_mensajes.get_nowait()  # Eliminar el mensaje más antiguo
+                        # La cola esta llena, eliminar el mensaje mas antiguo
+                        cola_de_mensajes.get_nowait()  # Eliminar el mensaje mas antiguo
                         cola_de_mensajes.put_nowait(data_str)
                 else:
                     actualizar_juego(data)
@@ -244,7 +291,7 @@ def recibir_enviar_mms():
 
 
 # 1. Funcion de escucha de juego_grafica
-hilo_grafico = threading.Thread(target=juego_grafica)
+hilo_grafico = threading.Thread(target=juego_inicial)
 hilo_grafico.start()
 
 

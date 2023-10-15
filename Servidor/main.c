@@ -30,6 +30,8 @@ void inicializarPosicionBola()
         datosDeJuego[i].posicion_bola_y = altoPantalla / 2;
         datosDeJuego[i].dx = velocidad_x;
         datosDeJuego[i].dy = velocidad_y;
+        datosDeJuego[i].puntaje_j1 = 0.0;
+        datosDeJuego[i].puntaje_j2 = 0.0;
     }
 }
 

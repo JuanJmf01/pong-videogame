@@ -87,7 +87,7 @@ void startGame(struct sockaddr_in client_addr, int posicionReceptor, int puertoR
     // printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
 }
 
-void newClient(struct sockaddr_in client_addr)
+void newClient(struct sockaddr_in client_addr, char *nombre)
 {
     char client_ip[INET_ADDRSTRLEN]; // Variable para almacenar la direccion IP como una cadena
     int client_port;                 // Variable para almacenar el puerto
@@ -104,7 +104,8 @@ void newClient(struct sockaddr_in client_addr)
             clients[i].socket = server_socket;
             clients[i].client_port = client_port;
             clients[i].client_addr = client_addr;
-            printf("PUERTO: %d ; IP: %s \n", client_port, client_ip);
+            clients[i].nombre = nombre;
+            printf("Nuevo cliente conectado - Puerto: %d ; IP: %s ; Nombre: %s\n\n", client_port, client_ip, clients[i].nombre);
             break;
         }
     }
@@ -147,18 +148,18 @@ void conectTwoPlayers()
             /* La sentencia `if` comprueba si el socket del servidor esta listo para lectura*/
             if (FD_ISSET(server_socket, &temp_fileDescriptor))
             {
-
                 struct sockaddr_in client_addr;
                 socklen_t addr_size = sizeof(client_addr);
                 char verification_message[1024];
                 ssize_t bytes_received;
 
                 bytes_received = recvfrom(server_socket, verification_message, sizeof(verification_message), 0, (struct sockaddr *)&client_addr, &addr_size);
-
-                if (strncmp(verification_message, "clientConnect", strlen("clientConnect")) == 0)
+                if (strncmp(verification_message, "clientConnect:", strlen("clientConnect:")) == 0)
                 {
-                    // printf("Mensaje del cliente: %s\n", verification_message);
-                    newClient(client_addr);
+                    // Verificar que es un mensaje de confirmación
+                    const char *delimiter = " "; 
+                    char *nombre = verification_message + strlen("clientConnect:");
+                    newClient(client_addr, nombre);
                 }
                 else
                 {
