@@ -4,6 +4,7 @@
         "variablescompartidas.h": "c",
         "manejarpelota.h": "c",
         "serversocket.h": "c",
-        "in.h": "c"
+        "in.h": "c",
+        "constantes.h": "c"
     }
 }

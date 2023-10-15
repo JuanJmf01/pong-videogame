@@ -5,7 +5,7 @@ char ADRESS_IP[16] = "localhost";
 char PORT[8] = "3930";
 
 // Escalabilidad
-int MAX_CLIENTS = 6;
+int MAX_CLIENTS = 20;
 int MAX_PARTIDAS;
 
 /* Configuracion de la ventana del juego. Las variables que se defienen en la ventana
@@ -13,17 +13,18 @@ del juego depenten totalmente del nivel estala. EL nivel escala es utilizado par
 
 int altoOriginal = 480;
 int anchoOriginal = 640;
-float nivelEscala = 1.5;
+float nivelEscala = 1;
 int anchoRaqueta = 10;
 
-int posicionVerticalRaqueta1 = 50;
+int posicionHorizontalRaqueta1 = 50;
 
-int altoPantalla; //720 
-int anchoPantalla; //960
-int altoRaqueta; //120
-int posicionVerticalRaqueta2; //910
-int diametroBola; //22
-int radioBola; //11
+int altoPantalla; 
+int anchoPantalla;
+int altoRaqueta; 
+int diametroBola;
+int radioBola; 
+int velocidad_x;
+int velocidad_y;
 
 void inicializarConstantes()
 {
@@ -36,7 +37,9 @@ void inicializarConstantes()
 
     altoRaqueta = (int)(80 * nivelEscala);
 
-    posicionVerticalRaqueta2 = anchoPantalla - 50;
     diametroBola = (int)(15 * nivelEscala);
     radioBola = (int)(diametroBola / 2);
+
+    velocidad_x = (int)(8 * nivelEscala);
+    velocidad_y = (int)(8 * nivelEscala);
 }

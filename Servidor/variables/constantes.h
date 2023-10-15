@@ -20,11 +20,13 @@ extern int anchoPantalla;
 extern int anchoRaqueta;
 extern int altoRaqueta;
 
-extern int posicionVerticalRaqueta1;
-extern int posicionVerticalRaqueta2;
+extern int posicionHorizontalRaqueta1;
 
 extern int diametroBola;
 extern int radioBola;
+
+extern int velocidad_x;
+extern int velocidad_y;
 
 void inicializarConstantes();
 

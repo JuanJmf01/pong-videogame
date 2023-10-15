@@ -6,6 +6,6 @@
 
 #include "../variables/variablesCompartidas.h" // Incluye el archivo de cabecera que define tus estructuras
 
-void *calcularPosicionBola(void *juegoDatos);
+void *enviarPosicionBola(void *juegoDatos);
 
 #endif // MANEJAR_PELOTA_H

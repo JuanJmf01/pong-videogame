@@ -17,6 +17,7 @@ void inicializarArregloClientes()
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         clients[i].socket = -1;
+        clients[i].numeroDePartida = -1;
     }
 }
 
@@ -27,8 +28,8 @@ void inicializarPosicionBola()
         datosDeJuego[i].partida = i;
         datosDeJuego[i].posicion_bola_x = anchoPantalla / 2;
         datosDeJuego[i].posicion_bola_y = altoPantalla / 2;
-        datosDeJuego[i].dx = 10;
-        datosDeJuego[i].dy = 10;
+        datosDeJuego[i].dx = velocidad_x;
+        datosDeJuego[i].dy = velocidad_y;
     }
 }
 
@@ -39,26 +40,26 @@ int main()
     inicializarConstantes();
     inicializarArregloClientes();
     inicializarPosicionBola();
-    //defineSocket();
+    defineSocket();
 
     //pthread_t hiloSocket, hiloDeBola;
-    pthread_t hiloSocket;
+    //pthread_t hiloSocket;
 
 
-    if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
-    {
-        perror("Error");
-        return 1;
-    }
+    // if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
+    // {
+    //     perror("Error");
+    //     return 1;
+    // }
 
-    // if (pthread_create(&hiloDeBola, NULL, calcularPosicionBola, &datosDeJuego) != 0)
+    // if (pthread_create(&hiloDeBola, NULL, enviarPosicionBola, &datosDeJuego) != 0)
     // {
     //     perror("Error");
     //     return 1;
     // }
 
     //pthread_join(hiloDeBola, NULL);
-    pthread_join(hiloSocket, NULL);
+    //pthread_join(hiloSocket, NULL);
 
     return 0;
 }

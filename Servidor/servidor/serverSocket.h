@@ -6,6 +6,6 @@
 
 #include "../variables/variablesCompartidas.h" // Incluye el archivo de cabecera que define tus estructuras
 
-void *defineSocket(void *datosDeJuego);
+void defineSocket();
 
 #endif // MANEJAR_PELOTA_H
