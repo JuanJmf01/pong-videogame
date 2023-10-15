@@ -14,16 +14,9 @@ cola_de_mensajes = queue.Queue(maxsize=5)
 # Crear un socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-
-# Enviar un mensaje de confirmacion al servidor
-try:
-    client_socket.sendto(b'clientConnect', (SERVER_IP, SERVER_PORT))
-    print("Confirmacion enviada")
-except:
-    print("Error al enviar la confirmacion")
-    
 # Inicializar Pygame
 pygame.init()
+
 
 # Configuracion de la ventana del juego
 anchoOriginal, altoOriginal = 640, 480
@@ -35,6 +28,18 @@ pygame.display.set_caption("TelePong")
 
 # print("ANCHO PANTALLA: ", anchoPantalla) #960
 # print("Alto PANTALLA: ", altoPantalla)  #720
+
+# Define colores
+color_fondo_caja = (0, 0, 0)  # Fondo negro
+color_borde_caja = (0, 255, 0)  # Bordes verdes
+color_texto = (0, 255, 0)  # Texto en verde
+
+# Definir la ruta de la fuente personalizada (reemplaza con la ubicación de tu fuente)
+ruta_fuente = "PressStart2P-Regular.ttf"
+
+# Crear una fuente Pygame
+fuente = pygame.font.Font(ruta_fuente, 15)  # Ajusta el tamaño de la fuente según tus preferencias
+
 
 # Colores
 black = (0, 0, 0)
@@ -57,6 +62,63 @@ velocidadBola_y = int(8 * nivelEscala)
 # print("ANCHO RAQUETA: ", anchoRaqueta) #10
 # print("ALEJAMIENTO RAQUETA: ", paletaJugador1) # <rect(50, 300, 10, 120)>
 # print("BOLA: ", bola) # <rect(469, 349, 22, 22)>
+
+def obtener_apodo_usuario():
+    pygame.font.init()
+    # Ajusta el ancho del cuadro de entrada
+    input_box = pygame.Rect(0, 0, 140, 32)  # Ajusta el ancho según tus preferencias
+    # Centra la caja horizontal y verticalmente
+    input_box.center = (anchoPantalla // 2, altoPantalla // 2)
+
+    active = False
+    text = ""
+
+    mensaje = "Ingresa aquí tu apodo para continuar"
+    mensaje_surface = fuente.render(mensaje, True, color_texto)
+    mensaje_rect = mensaje_surface.get_rect()
+    mensaje_rect.center = (anchoPantalla // 2, input_box.y - 40)  # Centra el mensaje arriba de la caja
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        apodo = text
+                        return apodo
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+
+        pantalla.fill((0, 0, 0))  # Color de fondo de la ventana
+        pygame.draw.rect(pantalla, color_fondo_caja, input_box)
+        pygame.draw.rect(pantalla, color_borde_caja, input_box, 2)
+        pantalla.blit(mensaje_surface, mensaje_rect)
+        txt_surface = fuente.render(text, True, color_texto)
+        width = max(140, txt_surface.get_width() + 10)
+        input_box.w = width
+        pantalla.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+        pygame.display.flip()
+
+
+# Enviar un mensaje de confirmacion al servidor
+try:
+    client_socket.sendto(b'clientConnect', (SERVER_IP, SERVER_PORT))
+    print("Confirmacion enviada")
+    user_nickname = obtener_apodo_usuario()
+    print(f"Apodo del usuario: {user_nickname}")
+except:
+    print("Error al enviar la confirmacion")
+    
+
 
 
 # Funciones para movimiento de jugador 1
