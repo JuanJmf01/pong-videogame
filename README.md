@@ -3,7 +3,7 @@
 En este proyecto se realizó un video juego pong en linea para que se pudiese jugar con multiples consolas unidas via internet, el proposito
 de este fue aprender como por medio de sockets podriamos conectar un servidor en linea funcional
 ## Desarrollo
-Podemos poner aca los comandos y dependencias y como configurar y utilizar el proyecto
+Dependencias: 
 ## Uso
 Con el comando ./main.out se inicializa el servidor y se crea un socket.
 Con el comando python.game.py inicializamos el juego como cliente.
@@ -11,7 +11,7 @@ Con el comando python.game.py inicializamos el juego como cliente.
 Se pudo concluir que: El proyecto era bastante retador por el poco uso y conocimiento que teniamos con respecto a los sockets y los protocolos, sin embargo 
 logramos aprender el debido uso de un servidor en linea y como programar este mismo, identificamos el diferente uso de los sockets y como estos funcionan 
 aprendimos la escalabilidad que pueden tener los servidores y como estos trabajan en base a esta misma, y comprendimos aun mas la importancia de la
-sincronizacion y latencia en estos proyectos}
+sincronizacion y latencia en estos proyectos
 ## Referencias 
 https://www.ponggame.org
 https://www.programacion.com.py/noticias/sockets-en-c-parte-i-linux
