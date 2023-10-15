@@ -8,7 +8,6 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include <ncurses.h>
 
 #include "manejarPelota.h"
 #include "../variables/variablesCompartidas.h"
