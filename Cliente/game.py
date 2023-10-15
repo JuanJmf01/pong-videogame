@@ -32,7 +32,7 @@ pygame.init()
 
 # Configuracion de la ventana del juego
 anchoOriginal, altoOriginal = 640, 480
-nivelEscala = 1
+nivelEscala = 1.5
 anchoPantalla, altoPantalla = int(
     anchoOriginal * nivelEscala), int(altoOriginal * nivelEscala)
 pantalla = pygame.display.set_mode((anchoPantalla, altoPantalla))
@@ -56,9 +56,10 @@ fuente = pygame.font.Font(ruta_fuente, 15)  # Ajusta el tamaño de la fuente seg
 # Colores
 black = (0, 0, 0)
 white = (255, 255, 255)
+green = (0, 255, 0)
 
 # Fuentes
-fuente = pygame.font.Font(None, 36)
+fuente = pygame.font.Font("PressStart2P-Regular.ttf", 15)
 
 # Titulo "Pong"
 titulo = fuente.render("Pong", True, white)
@@ -67,12 +68,17 @@ titulo_rect = titulo.get_rect(center=(anchoOriginal // 2, 50))
 # Campo de entrada de nombre
 input_rect = pygame.Rect(
     anchoOriginal // 4, altoOriginal // 2, anchoOriginal // 2, 32)
-color_activo = pygame.Color('lightskyblue3')
+color_activo = pygame.Color('green')
 color_inactivo = pygame.Color('dodgerblue2')
 color = color_inactivo
 nombre = ""
 texto = fuente.render(nombre, True, color)
 texto_rect = texto.get_rect(center=input_rect.center)
+
+# Mensaje
+mensaje = fuente.render('Ingresa tu apodo para continuar', True, pygame.Color('green'))
+mensaje_rect = mensaje.get_rect()
+mensaje_rect.center = (anchoOriginal // 2, altoOriginal // 4)
 
 # Boton "Play"
 boton = pygame.Rect(anchoOriginal // 4, altoOriginal *
@@ -89,8 +95,8 @@ texto_puntaje_jugador1 = fuente.render('', True, white)
 texto_puntaje_jugador2 = fuente.render('', True, white)
 
 # Posiciones de los textos de puntaje
-pos_puntaje_jugador1 = (anchoPantalla/6, 20)
-pos_puntaje_jugador2 = (anchoPantalla - (anchoPantalla/3), 20)
+pos_puntaje_jugador1 = (anchoPantalla/10, 20)
+pos_puntaje_jugador2 = (anchoPantalla - (anchoPantalla/2.5), 20)
 
 # Palos
 anchoRaqueta, altoRaqueta = 10, int(80 * nivelEscala)
@@ -180,6 +186,8 @@ def juego_inicial():
                     break
                 else:
                     print("Ingresa un nombre para continuar")
+        
+        pantalla.blit(mensaje, mensaje_rect)            
 
         # Dibujar el campo de entrada y el boton "Play"
         pygame.draw.rect(pantalla, color, input_rect, 2)
