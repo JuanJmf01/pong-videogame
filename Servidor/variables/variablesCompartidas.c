@@ -1,9 +1,10 @@
 #include "variablesCompartidas.h"
 #include "constantes.h"
 
-int cliente;
 int server_socket;
-int client_socket;
+pthread_t hilos_partidas[10];
 
-struct DatosDeJuego datosDeJuego[3];
-struct ClientInfo clients[6];
+
+
+struct DatosDeJuego datosDeJuego[10];
+struct ClientInfo clients[20];

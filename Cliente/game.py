@@ -27,7 +27,7 @@ pygame.init()
 
 # Configuracion de la ventana del juego
 anchoOriginal, altoOriginal = 640, 480
-nivelEscala = 1.5   
+nivelEscala = 1
 anchoPantalla, altoPantalla = int(
     anchoOriginal * nivelEscala), int(altoOriginal * nivelEscala)
 pantalla = pygame.display.set_mode((anchoPantalla, altoPantalla))
@@ -50,8 +50,8 @@ paletaJugador2 = pygame.Rect(anchoPantalla - 50 - anchoRaqueta,
 # Bola
 bola = pygame.Rect(anchoPantalla // 2 - int(7.5 * nivelEscala), altoPantalla //
                    2 - int(7.5 * nivelEscala), int(15 * nivelEscala), int(15 * nivelEscala))
-velocidadBola_x = int(7 * nivelEscala)
-velocidadBola_y = int(7 * nivelEscala)
+velocidadBola_x = int(8 * nivelEscala)
+velocidadBola_y = int(8 * nivelEscala)
 
 # print("ALTO RAQUETA: ", altoRaqueta) #120
 # print("ANCHO RAQUETA: ", anchoRaqueta) #10
@@ -68,7 +68,7 @@ def jugador1_sube():
     paletaJugador1.y -= int(5 * nivelEscala)
 
     # Enviar mensaje al otro cliente
-    enviar_posicion_al_servidor(f"jugador1_up{y}")
+    enviar_posicion_al_servidor(f"{y}")
 
 
 def jugador1_baja():
@@ -79,7 +79,7 @@ def jugador1_baja():
     paletaJugador1.y += int(5 * nivelEscala)
 
     # Enviar mensaje al otro cliente
-    enviar_posicion_al_servidor(f"jugador1_down{y}")
+    enviar_posicion_al_servidor(f"{y}")
 
 
 # Enviar posicion al servidor
@@ -93,15 +93,7 @@ def actualizar_juego(data):
     mensaje = data.decode()
     print("Esto llega del otro cliente", mensaje)
 
-    if mensaje.startswith("jugador1_up"):
-        # Obtener la nueva posición y actualizar al jugador 2
-        nueva_posicion = int(mensaje[len("jugador1_up"):])
-        paletaJugador2.y = nueva_posicion
-
-    elif mensaje.startswith("jugador1_down"):
-        # Obtener la nueva posición y actualizar al jugador 2
-        nueva_posicion = int(mensaje[len("jugador1_down"):])
-        paletaJugador2.y = nueva_posicion
+    paletaJugador2.y = int(mensaje)
 
 
 # Función para el bucle del juego gráfico
@@ -153,7 +145,7 @@ def juego_grafica():
         pygame.display.flip()
 
         # Control de velocidad
-        pygame.time.Clock().tick(30)
+        pygame.time.Clock().tick(15)
 
 # FUncion para enviar y recibir mensajes del servidor
 def recibir_enviar_mms():

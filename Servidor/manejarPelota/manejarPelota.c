@@ -14,120 +14,109 @@
 #include "../variables/variablesCompartidas.h"
 #include "../variables/constantes.h"
 
-void *calcularPosicionBola(void *juegoDatos)
+void definirPosicionBola(struct DatosDeJuego *datos)
 {
-    initscr();            // Inicializar ncurses
-    timeout(0);           // Establecer timeout para entrada sin bloqueo
-    keypad(stdscr, TRUE); // Habilitar teclas especiales (como flechas)
+    float x = datos->posicion_bola_x;
+    float y = datos->posicion_bola_y;
+    float dx = datos->dx;
+    float dy = datos->dy;
+    float jugador1 = datos->raqueta_j1;
+    float jugador2 = datos->raqueta_j2;
 
-    int isPaused = 0; // Variable para controlar si el programa está pausado o no
+    x += dx;
+    y += dy;
+
+    // Choque con la parte inferior y superior de la pantalla
+    if (y >= altoPantalla)
+    {
+        dy *= -1;
+    }
+
+    if (y <= 0)
+    {
+        dy *= -1;
+    }
+
+    // CHoque con la raqueta del jugador1
+    if (x <= 0 + posicionHorizontalRaqueta1 + 10 && y >= jugador1 && y <= jugador1 + altoRaqueta)
+    {
+        dx *= -1;
+    }
+
+    // Choque con la raqueta del jugador2
+    if (x >= (anchoPantalla - posicionHorizontalRaqueta1 - 10) && y >= jugador2 && y <= jugador2 + altoRaqueta)
+    {
+        dx *= -1;
+    }
+
+    // Choque con el lado izquierdo de la pantalla
+    if (x < 0 + posicionHorizontalRaqueta1)
+    {
+        x = anchoPantalla / 2;
+        y = altoPantalla / 2;
+        dx *= -1;
+    }
+
+    // Choque con el lado derecho de la pantalla
+    if (x > anchoPantalla - posicionHorizontalRaqueta1)
+    {
+        x = anchoPantalla / 2;
+        y = altoPantalla / 2;
+        dx *= -1;
+    }
+
+    datos->posicion_bola_x = x;
+    datos->posicion_bola_y = y;
+    datos->dx = dx;
+    datos->dy = dy;
+}
+
+void *enviarPosicionBola(void *juegoDatos)
+{
 
     struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
     // int numPosiciones = datos[0].numPosiciones;
 
     while (1)
     {
-        if (!isPaused)
+        int posicionJugador1 = datos->partida * 2;
+
+        float x = datos->posicion_bola_x;
+        float y = datos->posicion_bola_y;
+        float dx = datos->dx;
+        float dy = datos->dy;
+        definirPosicionBola(datos);
+
+        char buffer_jugador1[64];
+        char buffer_jugador2[64];
+
+        // Definimos nuevas variables 'x2' y 'dx2' para manejar vizualizacion en reflejo para jugador opuesto
+        float x2 = anchoPantalla - x;
+        float dx2 = -dx;
+
+        snprintf(buffer_jugador1, sizeof(buffer_jugador1), "POSICION_PELOTA:%f,%f,%f,%f", x, y, dx, dy);
+        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "POSICION_PELOTA:%f,%f,%f,%f", x2, y, dx2, dy);
+
+        for (int i = posicionJugador1; i <= posicionJugador1 + 1; i++)
         {
-            //float x = datos->posicion_bola_x;
-            //float y = datos->posicion_bola_y;
-            //float dx = datos->dx;
-            //float dy = datos->dy;
-            //float jugador1 = datos->raqueta_j1;
-            //float jugador2 = datos->raqueta_j2;
+            int puertoReceptor = clients[i].client_port;
+            // printf("POSICION JUGADOR 1 %d", posicionJugador1);
 
-            int posicionJugador1 = datos->partida * 2;
+            char buffer[64];
 
-            datos->posicion_bola_x += datos->dx;
-            datos->posicion_bola_y += datos->dy;
-
-            // Colisiones
-            // Choque con la parte inferior y superior
-            if (datos->posicion_bola_y >= 720)
+            if (i % 2 == 0)
             {
-                datos->dy *= -1;
+                // buffer = buffer_jugador1
+                strcpy(buffer, buffer_jugador1);
+            }
+            else
+            {
+                // buffer = buffer_jugador2
+                strcpy(buffer, buffer_jugador2);
             }
 
-            if (datos->posicion_bola_y <= 0)
-            {
-                datos->dy *= -1;
-            }
-
-            if (datos->posicion_bola_x <= 0 + 50 + 10 && datos->posicion_bola_y >= datos->raqueta_j1 && datos->posicion_bola_y <= datos->raqueta_j1 + 120)
-            {
-                datos->dx *= -1;
-                printf("POSICION R1: %f\n", datos->raqueta_j1);
-                printf("POSICION R2: %f\n", datos->raqueta_j2);
-                printf("X: %f - Y: %f\n\n", datos->posicion_bola_x, datos->posicion_bola_y);
-                //isPaused = !isPaused;
-            }
-
-            if (datos->posicion_bola_x >= (960 - 50 - 10) && datos->posicion_bola_y >= datos->raqueta_j2 && datos->posicion_bola_y <= datos->raqueta_j2 + 120)
-            {
-                datos->dx *= -1;
-                printf("POSICION R1: %f\n", datos->raqueta_j1);
-                printf("POSICION R2: %f\n", datos->raqueta_j2);
-                printf("X: %f - Y: %f\n\n", datos->posicion_bola_x, datos->posicion_bola_y);
-
-                //isPaused = !isPaused;
-            }
-
-            if (datos->posicion_bola_x < 0 + 50)
-            {
-                // La bola salio por el lado izquierdo, reiniciar desde el centro hacia la derecha
-                datos->posicion_bola_x = 960 / 2;
-                datos->posicion_bola_y = 720 / 2;
-                datos->dx *= -1;
-            }
-
-            if (datos->posicion_bola_x > 960 - 50)
-            {
-                // La bola salio por el lado derecho, reiniciar desde el centro hacia la izquierda
-                datos->posicion_bola_x = 960 / 2;
-                datos->posicion_bola_y = 720 / 2;
-                datos->dx *= -1;
-            }
-
-
-            char buffer_jugador1[64];
-            char buffer_jugador2[64];
-
-            // Definimos nuevas variables 'x2' y 'dx2' para manejar vizualizacion en reflejo para jugador opuesto
-            float x2 = 960 - datos->posicion_bola_x;
-            float dx2 = -datos->dx;
-
-            snprintf(buffer_jugador1, sizeof(buffer_jugador1), "POSICION_PELOTA:%f,%f,%f,%f", datos->posicion_bola_x, datos->posicion_bola_y, datos->dx, datos->dy);
-            snprintf(buffer_jugador2, sizeof(buffer_jugador2), "POSICION_PELOTA:%f,%f,%f,%f", x2, datos->posicion_bola_y, dx2, datos->dy);
-
-            for (int i = posicionJugador1; i <= posicionJugador1 + 1; i++)
-            {
-                int puertoReceptor = clients[i].client_port;
-                // printf("POSICION JUGADOR 1 %d", posicionJugador1);
-
-                char buffer[64];
-
-                if (i % 2 == 0)
-                {
-                    // buffer = buffer_jugador1
-                    strcpy(buffer, buffer_jugador1);
-                }
-                else
-                {
-                    // buffer = buffer_jugador2
-                    strcpy(buffer, buffer_jugador2);
-                }
-
-                sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&clients[i].client_addr, sizeof(clients[i].client_addr));
-            }
-            usleep(33333); // controlar la velocidad de actualizacion
+            sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&clients[i].client_addr, sizeof(clients[i].client_addr));
         }
-        int ch = getch();
-        if (ch == 'S' || ch == 's')
-        {
-            isPaused = !isPaused;
-        }
-
-        refresh();
+        usleep(66666); // controlar la velocidad de actualizacion
     }
-    endwin();
 }

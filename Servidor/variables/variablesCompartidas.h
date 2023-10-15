@@ -3,8 +3,9 @@
 
 #include <netinet/in.h> //Para sockaddr_in
 
-extern int cliente;
-extern int server_socket, client_socket;
+extern int server_socket
+extern pthread_t hilos_partidas[];
+
 
 struct DatosDeJuego
 {
@@ -29,6 +30,7 @@ struct ClientInfo
     `recvfrom()` y `sendto()` para especificar la direccion del cliente al recibir o
     enviar datos a traves de un socket de red. */
     struct sockaddr_in client_addr;
+    int numeroDePartida;
 };
 
 extern struct ClientInfo clients[];
