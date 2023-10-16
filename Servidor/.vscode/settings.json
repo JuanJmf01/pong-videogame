@@ -1,7 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "logger.h": "c",
-        "stdlib.h": "c"
+        "unistd.h": "c",
+        "variablescompartidas.h": "c"
     }
 }

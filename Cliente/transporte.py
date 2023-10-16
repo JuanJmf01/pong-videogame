@@ -6,7 +6,7 @@ import game
 
 
 #SERVER_IP = "localhost"
-SERVER_IP = "54.159.121.65"
+SERVER_IP = "34.229.225.65"
 
 SERVER_PORT = 3930
 
