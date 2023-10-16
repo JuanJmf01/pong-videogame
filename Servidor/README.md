@@ -1,9 +1,9 @@
 # Nombre del Proyecto
-Pong Game - Un juego clásico de Pong implementado en C
+Pong Game - Un juego clasico de Pong implementado en C
 
 ## Descripcion corta del proyecto.
 
-Este proyecto es una implementación del clásico juego de Pong en el lenguaje de programación C. Pong es un juego de mesa en el que dos jugadores controlan paletas y tratan de golpear una pelota de un lado al otro de la pantalla sin que la pelota salga del área de juego. El juego utiliza sockets para permitir que dos jugadores se conecten y  jueguen entre sí a través de la red.
+Este proyecto es una implementacion del clasico juego de Pong en el lenguaje de programacion C. Pong es un juego de mesa en el que dos jugadores controlan paletas y tratan de golpear una pelota de un lado al otro de la pantalla sin que la pelota salga del area de juego. El juego utiliza sockets para permitir que dos jugadores se conecten y  jueguen entre si a traves de la red.
 
 ## Requisitos Previos
 

@@ -13,6 +13,14 @@
 #include "../variables/constantes.h"
 #include "../logger/logger.h"
 
+/**
+ * La funcion "definirPosicionBola" actualiza la posicion de una pelota en un juego, teniendo en cuenta
+ * colisiones con los bordes de la pantalla y las raquetas de los jugadores.
+ *
+ * @param datos El parametro "datos" es un puntero a una estructura llamada "DatosDeJuego". esta estructura
+ * contiene diversos datos relacionados con el juego, incluida la posicion de la pelota (posicion_bola_x y
+ * posicion_bola_y), la velocidad de la pelota (dx y dy), y las posiciones de las raquetas (jugador1, jugador2)
+ */
 void definirPosicionBola(struct DatosDeJuego *datos)
 {
     float x = datos->posicion_bola_x;

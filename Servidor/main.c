@@ -11,7 +11,9 @@
 #include "servidor/serverSocket.h"
 #include "variables/constantes.h"
 
-
+/**
+ * La funcion inicializa una serie de clientes estableciendo su socket y numero de partida en -1.
+ */
 void inicializarArregloClientes()
 {
     for (int i = 0; i < MAX_CLIENTS; i++)
@@ -21,6 +23,10 @@ void inicializarArregloClientes()
     }
 }
 
+/**
+ * La funcion inicializa la posicion y velocidad de la pelota, asi como las puntuaciones para dos
+ * jugadores en un juego.
+ */
 void inicializarPosicionBola()
 {
     for (int i = 0; i < MAX_PARTIDAS; i++)

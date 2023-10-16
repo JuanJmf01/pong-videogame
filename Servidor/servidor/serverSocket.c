@@ -13,11 +13,11 @@
 #include "../logger/logger.h"
 
 /**
- * La función "crearHiloPartida" crea un nuevo hilo para un juego y asigna jugadores al juego.
+ * La funcion "crearHiloPartida" crea un nuevo hilo para un juego y asigna jugadores al juego.
  *
- * @param partida El parámetro "partida" representa el número de juego o identificador del nuevo juego
+ * @param partida El parametro "partida" representa el numero de juego o identificador del nuevo juego
  * siendo creado.
- * @param i El parámetro "i" representa el índice del cliente en la matriz "clientes".
+ * @param i El parametro "i" representa el indice del cliente en la matriz "clientes".
  */
 void crearHiloPartida(int partida, int i)
 {
@@ -67,18 +67,18 @@ void definirHiloPartida(int i)
 }
 
 /**
- * La función "startGame" se utiliza para inicializar un juego entre dos clientes configurando
+ * La funcion "startGame" se utiliza para inicializar un juego entre dos clientes configurando
  *
- * @param client_addr El parámetro client_addr es una estructura sockaddr_in que representa la
- * información de dirección, incluida la dirección IP y el número de puerto.
- * @param posicionReceptor La variable "posicionReceptor" representa la posición del receptor
- * cliente en la matriz "clientes". Se utiliza para acceder a la información del cliente, como la dirección IP y
- * número de puerto.
- * @param puertoReceptor El parámetro "puertoReceptor" representa el número de puerto del receptor
- * cliente. Se utiliza para especificar el puerto al que se enviará el mensaje de verificación.
- * @param verificar_mensaje El parámetro mensaje_verificación es un puntero a un carácter constante
+ * @param client_addr El parametro client_addr es una estructura sockaddr_in que representa la
+ * informacion de direccion, incluida la direccion IP y el numero de puerto.
+ * @param posicionReceptor La variable "posicionReceptor" representa la posicion del receptor
+ * cliente en la matriz "clientes". Se utiliza para acceder a la informacion del cliente, como la direccion IP y
+ * numero de puerto.
+ * @param puertoReceptor El parametro "puertoReceptor" representa el numero de puerto del receptor
+ * cliente. Se utiliza para especificar el puerto al que se enviara el mensaje de verificacion.
+ * @param verificar_mensaje El parametro mensaje_verificacion es un puntero a un caracter constante
  *matriz (cadena) que contiene el mensaje a enviar al cliente.
- * @param i El parámetro "i" representa el índice del cliente en la matriz de clientes.
+ * @param i El parametro "i" representa el indice del cliente en la matriz de clientes.
  */
 void startGame(struct sockaddr_in client_addr, int posicionReceptor, int puertoReceptor, const char *verification_message, int i)
 {
@@ -103,12 +103,12 @@ void startGame(struct sockaddr_in client_addr, int posicionReceptor, int puertoR
 }
 
 /**
- * La función "nuevoCliente" guarda información sobre un nuevo cliente, como su dirección IP, puerto y
+ * La funcion "nuevoCliente" guarda informacion sobre un nuevo cliente, como su direccion IP, puerto y
  *nombre, en un array llamado "clientes".
  *
- * @param client_addr El parámetro `client_addr` es de tipo `struct sockaddr_in` y representa el
- * información de la dirección del cliente, incluida la dirección IP y el número de puerto.
- * @param nombre El parámetro "nombre" es un puntero a una matriz de caracteres que representa el nombre de
+ * @param client_addr El parametro `client_addr` es de tipo `struct sockaddr_in` y representa el
+ * informacion de la direccion del cliente, incluida la direccion IP y el numero de puerto.
+ * @param nombre El parametro "nombre" es un puntero a una matriz de caracteres que representa el nombre de
  * el cliente.
  */
 void newClient(struct sockaddr_in client_addr, char *nombre)
@@ -129,7 +129,7 @@ void newClient(struct sockaddr_in client_addr, char *nombre)
             clients[i].client_port = client_port;
             clients[i].client_addr = client_addr;
             clients[i].nombre = nombre;
-            char log_message_buffer[512]; // Tamaño adecuado según tus necesidades
+            char log_message_buffer[512]; // Tamaño adecuado segun tus necesidades
             snprintf(log_message_buffer, sizeof(log_message_buffer), "Nuevo cliente conectado - Puerto: %d ; IP: %s ; Nombre: %s\n", client_port, client_ip, clients[i].nombre);
             log_message(LOG_INFO, log_message_buffer);
             printf("Nuevo cliente conectado - Puerto: %d ; IP: %s ; Nombre: %s\n\n", client_port, client_ip, clients[i].nombre);
@@ -138,6 +138,13 @@ void newClient(struct sockaddr_in client_addr, char *nombre)
     }
 }
 
+/**
+ * La funcion `cancelarHilo` cancela un hilo en una posicion determinada y registra el resultado.
+ *
+ * @param posicion El parametro "posicion" representa la posicion de un cliente en un array llamado
+ * "clients". Se utiliza para acceder a la informacion del cliente, como el numero del juego que esta
+ * reproduccion en curso.
+ */
 void cancelarHilo(int posicion)
 {
     int numeroPartida = clients[posicion].numeroDePartida;
@@ -149,19 +156,19 @@ void cancelarHilo(int posicion)
 
         if (resultado == 0)
         {
-            snprintf(log_message_buffer, sizeof(log_message_buffer), "El hilo en la posición %d ha sido cancelado.\n", numeroPartida);
+            snprintf(log_message_buffer, sizeof(log_message_buffer), "El hilo en la posicion %d ha sido cancelado.\n", numeroPartida);
             log_message(LOG_INFO, log_message_buffer);
         }
         else
         {
-            snprintf(log_message_buffer, sizeof(log_message_buffer), "Error al cancelar el hilo en la posición %d. Código de error: %d\n", numeroPartida, resultado);
+            snprintf(log_message_buffer, sizeof(log_message_buffer), "Error al cancelar el hilo en la posicion %d. Codigo de error: %d\n", numeroPartida, resultado);
             log_message(LOG_ERROR, log_message_buffer);
         }
     }
     else
     {
-        // El índice está fuera de rango
-        snprintf(log_message_buffer, sizeof(log_message_buffer), "Índice fuera de rango: %d\n", numeroPartida);
+        // El indice esta fuera de rango
+        snprintf(log_message_buffer, sizeof(log_message_buffer), "indice fuera de rango: %d\n", numeroPartida);
         log_message(LOG_WARNING, log_message_buffer);
     }
 }
@@ -215,7 +222,7 @@ void conectTwoPlayers()
                 {
                     printf("MESSAGE %s\n", verification_message);
 
-                    // Verificar que es un mensaje de confirmación
+                    // Verificar que es un mensaje de confirmacion
                     const char *delimiter = " ";
                     char *nombre = verification_message + strlen("clientConnect:");
                     newClient(client_addr, nombre);
@@ -279,6 +286,10 @@ void conectTwoPlayers()
     }
 }
 
+/**
+ * La funcion `defineSocket()` crea un socket para el servidor y lo vincula a una direccion especifica y
+ * puerto.
+ */
 void defineSocket()
 {
     // struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;

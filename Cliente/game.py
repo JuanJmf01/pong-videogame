@@ -104,9 +104,24 @@ velocidadBola_y = int(8 * nivelEscala)
 
 entrada_activa = False
 
+# Calcular caida de bolitas desde arriba hacia bajo
+clock = pygame.time.Clock()
+lista_coordenadas = []
+for i in range(60):
+    x = random.randint(0, anchoPantalla)
+    y = random.randint(0, altoPantalla)
+    lista_coordenadas.append([x, y])
+
+pygame.display.set_caption("TELEPONG")
+
+# Propiedades de la bola de pantalla de inicio
+ball_radius = 20
+ball_x = anchoPantalla // 2
+ball_y = altoPantalla // 2
+ball_speed_x = 3
+ball_speed_y = 3
+
 # Funciones para movimiento de jugador 1
-
-
 def jugador1_sube():
     print("MENSAJE SUBIR")
     y = paletaJugador1.y
@@ -136,21 +151,8 @@ def actualizar_juego(data):
 
     paletaJugador2.y = int(mensaje)
 
-clock = pygame.time.Clock()
-lista_coordenadas = []
-for i in range(60):
-    x = random.randint(0, anchoPantalla)
-    y = random.randint(0, altoPantalla)
-    lista_coordenadas.append([x, y])
 
-pygame.display.set_caption("TELEPONG")
 
-# Propiedades de la bola
-ball_radius = 20
-ball_x = anchoPantalla // 2
-ball_y = altoPantalla // 2
-ball_speed_x = 3
-ball_speed_y = 3
 
 
 def juego_inicial():
