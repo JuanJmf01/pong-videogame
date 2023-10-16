@@ -1,29 +1,8 @@
-import select
-import socket
 import sys
 import threading
 import pygame
-import queue
-
-SERVER_IP = "localhost"
-SERVER_PORT = 3930
-
-cola_de_mensajes = queue.Queue(maxsize=5)
-
-# Crear un socket
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-
-# Enviar un mensaje de confirmacion al servidor
-def enviaConfirmacionServidor(nombre):
-    try:
-        print("Nombre ingresado:", nombre)
-        mensaje = 'clientConnect:' + nombre
-        client_socket.sendto(mensaje.encode(), (SERVER_IP, SERVER_PORT))
-        print("Confirmacion enviada: ", mensaje)
-
-    except:
-        print("Error al enviar la confirmacion")
+import random
+import transporte
 
 
 # Inicializar Pygame
@@ -32,14 +11,12 @@ pygame.init()
 
 # Configuracion de la ventana del juego
 anchoOriginal, altoOriginal = 640, 480
-nivelEscala = 1
+nivelEscala = 1.5
 anchoPantalla, altoPantalla = int(
     anchoOriginal * nivelEscala), int(altoOriginal * nivelEscala)
 pantalla = pygame.display.set_mode((anchoPantalla, altoPantalla))
 pygame.display.set_caption("TelePong")
 
-ventana = pygame.display.set_mode((anchoOriginal, altoOriginal))
-pygame.display.set_caption("Pong")
 
 # Define colores
 color_fondo_caja = (0, 0, 0)  # Fondo negro
@@ -50,15 +27,19 @@ color_texto = (0, 255, 0)  # Texto en verde
 ruta_fuente = "PressStart2P-Regular.ttf"
 
 # Crear una fuente Pygame
-fuente = pygame.font.Font(ruta_fuente, 15)  # Ajusta el tamaño de la fuente según tus preferencias
+# Ajusta el tamaño de la fuente según tus preferencias
+fuente = pygame.font.Font(ruta_fuente, 15)
 
 
 # Colores
 black = (0, 0, 0)
 white = (255, 255, 255)
+green = (0, 255, 0)
 
 # Fuentes
-fuente = pygame.font.Font(None, 36)
+fuente = pygame.font.Font("PressStart2P-Regular.ttf", 15)
+fuente2 = pygame.font.Font("PressStart2P-Regular.ttf", 25)
+
 
 # Titulo "Pong"
 titulo = fuente.render("Pong", True, white)
@@ -66,17 +47,33 @@ titulo_rect = titulo.get_rect(center=(anchoOriginal // 2, 50))
 
 # Campo de entrada de nombre
 input_rect = pygame.Rect(
-    anchoOriginal // 4, altoOriginal // 2, anchoOriginal // 2, 32)
-color_activo = pygame.Color('lightskyblue3')
+    anchoOriginal // 4, altoOriginal // 1.7, anchoOriginal // 2, 32)
+input_rect.centerx = pantalla.get_rect().centerx  # Centra horizontalmente
+color_activo = pygame.Color('green')
 color_inactivo = pygame.Color('dodgerblue2')
 color = color_inactivo
 nombre = ""
 texto = fuente.render(nombre, True, color)
 texto_rect = texto.get_rect(center=input_rect.center)
 
-# Boton "Play"
+# Mensaje Bienvenido
+mensajeBienvenida = fuente2.render(
+    'Bienvenido a TelePong! ', True, pygame.Color('green'))
+mensajeBienvenida_rect = mensajeBienvenida.get_rect()
+mensajeBienvenida_rect.centerx = pantalla.get_rect().centerx  # Centra horizontalmente
+mensajeBienvenida_rect.top = altoOriginal // 4  # Define la posición vertical
+
+# Mensaje
+mensaje = fuente.render('Ingresa tu apodo para continuar',
+                        True, pygame.Color('green'))
+mensaje_rect = mensaje.get_rect()
+mensaje_rect.centerx = pantalla.get_rect().centerx  # Centra horizontalmente
+mensaje_rect.top = altoOriginal // 2  # Define la posición vertical
+
+# Botón "Play"
 boton = pygame.Rect(anchoOriginal // 4, altoOriginal *
                     3 / 4, anchoOriginal // 2, 50)
+boton.centerx = pantalla.get_rect().centerx  # Centra horizontalmente
 texto_boton = fuente.render("Play", True, black)
 texto_boton_rect = texto_boton.get_rect(center=boton.center)
 
@@ -89,8 +86,8 @@ texto_puntaje_jugador1 = fuente.render('', True, white)
 texto_puntaje_jugador2 = fuente.render('', True, white)
 
 # Posiciones de los textos de puntaje
-pos_puntaje_jugador1 = (anchoPantalla/6, 20)
-pos_puntaje_jugador2 = (anchoPantalla - (anchoPantalla/3), 20)
+pos_puntaje_jugador1 = (anchoPantalla/10, 20)
+pos_puntaje_jugador2 = (anchoPantalla - (anchoPantalla/2.5), 20)
 
 # Palos
 anchoRaqueta, altoRaqueta = 10, int(80 * nivelEscala)
@@ -118,7 +115,7 @@ def jugador1_sube():
     paletaJugador1.y -= int(5 * nivelEscala)
 
     # Enviar mensaje al otro cliente
-    enviar_posicion_al_servidor(f"{y}")
+    transporte.enviar_posicion_al_servidor(f"{y}")
 
 
 def jugador1_baja():
@@ -129,13 +126,7 @@ def jugador1_baja():
     paletaJugador1.y += int(5 * nivelEscala)
 
     # Enviar mensaje al otro cliente
-    enviar_posicion_al_servidor(f"{y}")
-
-
-# Enviar posicion al servidor
-def enviar_posicion_al_servidor(message):
-    print("PRIMERA: ", message)
-    client_socket.sendto(message.encode(), (SERVER_IP, SERVER_PORT))
+    transporte.enviar_posicion_al_servidor(f"{y}")
 
 
 # Actualizar interfaz grafica
@@ -145,9 +136,25 @@ def actualizar_juego(data):
 
     paletaJugador2.y = int(mensaje)
 
+clock = pygame.time.Clock()
+lista_coordenadas = []
+for i in range(60):
+    x = random.randint(0, anchoPantalla)
+    y = random.randint(0, altoPantalla)
+    lista_coordenadas.append([x, y])
+
+pygame.display.set_caption("TELEPONG")
+
+# Propiedades de la bola
+ball_radius = 20
+ball_x = anchoPantalla // 2
+ball_y = altoPantalla // 2
+ball_speed_x = 3
+ball_speed_y = 3
+
 
 def juego_inicial():
-    global entrada_activa, nombre
+    global entrada_activa, nombre, ball_x, ball_y, ball_speed_x, ball_speed_y
     color = color_inactivo
     texto = fuente.render(nombre, True, color)
     while True:
@@ -174,12 +181,35 @@ def juego_inicial():
             # Evento para el boton "Play"
             if event.type == pygame.MOUSEBUTTONDOWN and boton.collidepoint(event.pos) and nombre:
                 if nombre is not None:
-                    enviaConfirmacionServidor(nombre)
+                    transporte.enviaConfirmacionServidor(nombre)
                     juego_grafica()
 
                     break
                 else:
                     print("Ingresa un nombre para continuar")
+        pantalla.fill(black)
+        for coordenada in lista_coordenadas:
+            pygame.draw.circle(pantalla, green, coordenada, 2)
+            coordenada[1] += 1
+            if (coordenada[1] > altoPantalla):
+                coordenada[1] = 0
+
+        # Mueve la bola
+        ball_x += ball_speed_x
+        ball_y += ball_speed_y
+
+        # Rebote en el eje X
+        if ball_x < 0 or ball_x > anchoPantalla:
+            ball_speed_x *= -1
+
+        # Rebote en el eje Y
+        if ball_y < 0 or ball_y > altoPantalla:
+            ball_speed_y *= -1
+
+        pygame.draw.circle(pantalla, white, (ball_x, ball_y), ball_radius)
+
+        pantalla.blit(mensajeBienvenida, mensajeBienvenida_rect)
+        pantalla.blit(mensaje, mensaje_rect)
 
         # Dibujar el campo de entrada y el boton "Play"
         pygame.draw.rect(pantalla, color, input_rect, 2)
@@ -188,6 +218,7 @@ def juego_inicial():
         pantalla.blit(texto_boton, texto_boton_rect)
 
         pygame.display.flip()
+        clock.tick(30)
 
 
 # Funcion para el bucle del juego grafico
@@ -207,8 +238,8 @@ def juego_grafica():
         if llave[pygame.K_s] and paletaJugador1.centery < altoPantalla:
             jugador1_baja()
 
-        if not cola_de_mensajes.empty():
-            mensaje = cola_de_mensajes.get()
+        if not transporte.cola_de_mensajes.empty():
+            mensaje = transporte.cola_de_mensajes.get()
 
             print("GET COLA: ", mensaje)
 
@@ -228,9 +259,31 @@ def juego_grafica():
                 velocidadBola_y = dy
 
                 # Actualiza los puntajes
-                puntaje_jugador1 = str(puntaje1)
-                puntaje_jugador2 = str(puntaje2)
+                puntaje_jugador1 = int(puntaje1)
+                puntaje_jugador2 = int(puntaje2)
 
+                if puntaje_jugador1 == 5:
+                    mensaje_ganador = fuente.render(
+                        "Jugador 1 ganó!", True, white)
+                    mensaje_ganador_rect = mensaje_ganador.get_rect(
+                        center=(anchoOriginal // 2, altoOriginal // 2))
+                    pantalla.blit(mensaje_ganador, mensaje_ganador_rect)
+                    mensaje = "desconection"
+                    transporte.enviar_posicion_al_servidor(f"{mensaje}")
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
+                    pygame.quit()
+                    sys.exit()
+                elif puntaje_jugador2 == 5:
+                    mensaje_ganador = fuente.render(
+                        "Jugador 2 ganó!", True, white)
+                    mensaje_ganador_rect = mensaje_ganador.get_rect(
+                        center=(anchoOriginal // 2, altoOriginal // 2))
+                    pantalla.blit(mensaje_ganador, mensaje_ganador_rect)
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
+                    pygame.quit()
+                    sys.exit()
 
         # Dibujar todo en la pantalla
         pantalla.fill(black)
@@ -256,45 +309,11 @@ def juego_grafica():
         pygame.time.Clock().tick(15)
 
 
-# FUncion para enviar y recibir mensajes del servidor
-def recibir_enviar_mms():
-    while True:
-        # Configurar la lista de sockets para select()
-        # La linea `sockets_list = [sys.stdin, client_socket]` esta creando una lista de sockets que seran
-        # utilizados por la funcion `select()` para verificar si hay datos disponibles para leer en alguno de los sockets.
-        sockets_list = [sys.stdin, client_socket]
-
-        # select() es una funcion que permite a un programa monitorear multiples descriptores de archivos (en este contexto, sockets)
-        # para determinar cuales estan listos para lectura, escritura o si se ha producido un error en alguno de ellos
-        # - read_sockets: sockets_listos_para_leer: La lista de sockets que estan listos para lectura.
-        # - _:            sockets_listos_para_escribir: La lista de sockets que estan listos para escritura.
-        # - _:            sockets_con_errores: La lista de sockets que tienen errores.
-        # Utilizamos '_' ya que es una variable descarte (No se va utilizar)
-        read_sockets, _, _ = select.select(sockets_list, [], [])
-
-        for sock in read_sockets:
-            if sock == client_socket:
-                # print(read_sockets)
-                # Datos recibidos del servidor
-                data, server_address = client_socket.recvfrom(1024)
-                data_str = data.decode("utf-8")  # Decodificar data a str
-                if data_str.startswith("GAME:"):
-                    try:
-                        cola_de_mensajes.put_nowait(data_str)
-                    except queue.Full:
-                        # La cola esta llena, eliminar el mensaje mas antiguo
-                        cola_de_mensajes.get_nowait()  # Eliminar el mensaje mas antiguo
-                        cola_de_mensajes.put_nowait(data_str)
-                else:
-                    actualizar_juego(data)
-                    print("Actualizar juego")
-
-
 # 1. Funcion de escucha de juego_grafica
 hilo_grafico = threading.Thread(target=juego_inicial)
 hilo_grafico.start()
 
 
 # 2. Funcion de escucha para recibir_enviar_mms
-hilo_cliente = threading.Thread(target=recibir_enviar_mms)
+hilo_cliente = threading.Thread(target=transporte.recibir_enviar_mms)
 hilo_cliente.start()

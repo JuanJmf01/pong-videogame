@@ -2,9 +2,9 @@
 #include "constantes.h"
 
 int server_socket;
-pthread_t hilos_partidas[10];
+pthread_t hilos_partidas[30];
 
 
 
-struct DatosDeJuego datosDeJuego[10];
-struct ClientInfo clients[20];
+struct DatosDeJuego datosDeJuego[30];
+struct ClientInfo clients[60];
