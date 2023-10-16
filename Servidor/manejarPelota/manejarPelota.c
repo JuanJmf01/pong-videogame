@@ -8,11 +8,10 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include <ncurses.h>
-
 #include "manejarPelota.h"
 #include "../variables/variablesCompartidas.h"
 #include "../variables/constantes.h"
+#include "../logger/logger.h"
 
 void definirPosicionBola(struct DatosDeJuego *datos)
 {
@@ -26,6 +25,7 @@ void definirPosicionBola(struct DatosDeJuego *datos)
     x += dx;
     y += dy;
 
+    char log_message_buffer[64];
     // Choque con la parte inferior y superior de la pantalla
     if (y >= altoPantalla)
     {
@@ -41,12 +41,16 @@ void definirPosicionBola(struct DatosDeJuego *datos)
     if (x <= 0 + posicionHorizontalRaqueta1 + 10 && y >= jugador1 && y <= jugador1 + altoRaqueta)
     {
         dx *= -1;
+        snprintf(log_message_buffer, sizeof(log_message_buffer), "Choque R1 \n Pos pelota_x: %f  ;  Pos pelota_y: %f\n", x, y);
+        log_message(LOG_INFO, log_message_buffer);
     }
 
     // Choque con la raqueta del jugador2
     if (x >= (anchoPantalla - posicionHorizontalRaqueta1 - 10) && y >= jugador2 && y <= jugador2 + altoRaqueta)
     {
         dx *= -1;
+        snprintf(log_message_buffer, sizeof(log_message_buffer), "Choque R2 \n Pos pelota_x: %f  ;   Pos pelota_y: %f\n", x, y);
+        log_message(LOG_INFO, log_message_buffer);
     }
 
     // Choque con el lado izquierdo de la pantalla
@@ -78,6 +82,7 @@ void *enviarPosicionBola(void *juegoDatos)
 
     struct DatosDeJuego *datos = (struct DatosDeJuego *)juegoDatos;
     // int numPosiciones = datos[0].numPosiciones;
+    char log_message_buffer[64];
 
     while (1)
     {
@@ -99,12 +104,11 @@ void *enviarPosicionBola(void *juegoDatos)
         float dx2 = -dx;
 
         snprintf(buffer_jugador1, sizeof(buffer_jugador1), "GAME:%f,%f,%f,%f,%f,%f", x, y, dx, dy, puntaje_j1, puntaje_j2);
-        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "GAME:%f,%f,%f,%f,%f,%f", x2, y, dx2, dy, puntaje_j1, puntaje_j2);
+        snprintf(buffer_jugador2, sizeof(buffer_jugador2), "GAME:%f,%f,%f,%f,%f,%f", x2, y, dx2, dy, puntaje_j2, puntaje_j1);
 
         for (int i = posicionJugador1; i <= posicionJugador1 + 1; i++)
         {
             int puertoReceptor = clients[i].client_port;
-            // printf("POSICION JUGADOR 1 %d", posicionJugador1);
 
             char buffer[128];
 
@@ -121,6 +125,9 @@ void *enviarPosicionBola(void *juegoDatos)
 
             sendto(server_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&clients[i].client_addr, sizeof(clients[i].client_addr));
         }
+        snprintf(log_message_buffer, sizeof(log_message_buffer), "Posicion pelota_x: %f  ;  Posicion pelota_y: %f", x, y);
+        log_message(LOG_INFO, log_message_buffer);
+
         usleep(66666); // controlar la velocidad de actualizacion
     }
 }

@@ -44,24 +44,6 @@ int main()
     inicializarPosicionBola();
     defineSocket();
 
-    //pthread_t hiloSocket, hiloDeBola;
-    //pthread_t hiloSocket;
-
-
-    // if (pthread_create(&hiloSocket, NULL, defineSocket, &datosDeJuego) != 0)
-    // {
-    //     perror("Error");
-    //     return 1;
-    // }
-
-    // if (pthread_create(&hiloDeBola, NULL, enviarPosicionBola, &datosDeJuego) != 0)
-    // {
-    //     perror("Error");
-    //     return 1;
-    // }
-
-    //pthread_join(hiloDeBola, NULL);
-    //pthread_join(hiloSocket, NULL);
 
     return 0;
 }

@@ -10,12 +10,20 @@
 #include "../variables/variablesCompartidas.h"
 #include "../manejarPelota/manejarPelota.h"
 #include "../variables/constantes.h"
+#include "../logger/logger.h"
 
+/**
+ * La función "crearHiloPartida" crea un nuevo hilo para un juego y asigna jugadores al juego.
+ *
+ * @param partida El parámetro "partida" representa el número de juego o identificador del nuevo juego
+ * siendo creado.
+ * @param i El parámetro "i" representa el índice del cliente en la matriz "clientes".
+ */
 void crearHiloPartida(int partida, int i)
 {
+    printf("SE DEFINE PARTIDA EN: %d", partida);
     if (clients[i].numeroDePartida == -1 && clients[i + 1].numeroDePartida == -1)
     {
-        printf("Entra a crear hilo en la partida disponible: %d \n", partida);
         if (i % 2 == 0)
         {
             clients[i].numeroDePartida = partida;
@@ -30,7 +38,7 @@ void crearHiloPartida(int partida, int i)
         // Crea un hilo para la nueva partida y pasa el puntero a la estructura de datos
         if (pthread_create(&hilos_partidas[partida], NULL, enviarPosicionBola, (void *)&datosDeJuego[partida]) != 0)
         {
-            perror("Error al crear el hilo de la partida");
+            log_message(LOG_ERROR, "Error al crear el hilo de la partida");
         }
     }
 }
@@ -40,7 +48,6 @@ void definirHiloPartida(int i)
     int partida = -1;
     if (i >= 2)
     {
-        // printf("_MI I_ 1: %d \n", i);
         if (i % 2 == 0)
         {
             partida = i / 2;
@@ -54,22 +61,29 @@ void definirHiloPartida(int i)
     }
     else
     {
-        // printf("_MI I_ 2: %d\n", i);
         partida = 0;
         crearHiloPartida(partida, i);
     }
 }
 
+/**
+ * La función "startGame" se utiliza para inicializar un juego entre dos clientes configurando
+ *
+ * @param client_addr El parámetro client_addr es una estructura sockaddr_in que representa la
+ * información de dirección, incluida la dirección IP y el número de puerto.
+ * @param posicionReceptor La variable "posicionReceptor" representa la posición del receptor
+ * cliente en la matriz "clientes". Se utiliza para acceder a la información del cliente, como la dirección IP y
+ * número de puerto.
+ * @param puertoReceptor El parámetro "puertoReceptor" representa el número de puerto del receptor
+ * cliente. Se utiliza para especificar el puerto al que se enviará el mensaje de verificación.
+ * @param verificar_mensaje El parámetro mensaje_verificación es un puntero a un carácter constante
+ *matriz (cadena) que contiene el mensaje a enviar al cliente.
+ * @param i El parámetro "i" representa el índice del cliente en la matriz de clientes.
+ */
 void startGame(struct sockaddr_in client_addr, int posicionReceptor, int puertoReceptor, const char *verification_message, int i)
 {
-    // printf("ENTRO \n");
+
     int partida = clients[posicionReceptor].numeroDePartida;
-
-    client_addr.sin_family = AF_UNSPEC;
-    client_addr.sin_port = htons(puertoReceptor);
-    inet_pton(AF_UNSPEC, ADRESS_IP, &(client_addr.sin_addr));
-
-    // printf("MI PARTIDA: %d\n", partida);
 
     definirHiloPartida(i);
 
@@ -82,11 +96,21 @@ void startGame(struct sockaddr_in client_addr, int posicionReceptor, int puertoR
     {
         datosDeJuego[partida].raqueta_j2 = numero;
     }
-
+    printf("DIRECCION EMISOR : %s, PUERTO: %d \n", inet_ntoa(clients[i].client_addr.sin_addr), ntohs(clients[i].client_port));
+    printf("DIRECCION RECEPTOR : %s, PUERTO: %d\n", inet_ntoa(clients[posicionReceptor].client_addr.sin_addr), ntohs(clients[posicionReceptor].client_port));
+    printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
     sendto(server_socket, verification_message, strlen(verification_message), 0, (struct sockaddr *)&clients[posicionReceptor].client_addr, sizeof(clients[posicionReceptor].client_addr));
-    // printf("Cliente %d dice: %s\n", puertoReceptor, verification_message);
 }
 
+/**
+ * La función "nuevoCliente" guarda información sobre un nuevo cliente, como su dirección IP, puerto y
+ *nombre, en un array llamado "clientes".
+ *
+ * @param client_addr El parámetro `client_addr` es de tipo `struct sockaddr_in` y representa el
+ * información de la dirección del cliente, incluida la dirección IP y el número de puerto.
+ * @param nombre El parámetro "nombre" es un puntero a una matriz de caracteres que representa el nombre de
+ * el cliente.
+ */
 void newClient(struct sockaddr_in client_addr, char *nombre)
 {
     char client_ip[INET_ADDRSTRLEN]; // Variable para almacenar la direccion IP como una cadena
@@ -105,9 +129,40 @@ void newClient(struct sockaddr_in client_addr, char *nombre)
             clients[i].client_port = client_port;
             clients[i].client_addr = client_addr;
             clients[i].nombre = nombre;
+            char log_message_buffer[512]; // Tamaño adecuado según tus necesidades
+            snprintf(log_message_buffer, sizeof(log_message_buffer), "Nuevo cliente conectado - Puerto: %d ; IP: %s ; Nombre: %s\n", client_port, client_ip, clients[i].nombre);
+            log_message(LOG_INFO, log_message_buffer);
             printf("Nuevo cliente conectado - Puerto: %d ; IP: %s ; Nombre: %s\n\n", client_port, client_ip, clients[i].nombre);
             break;
         }
+    }
+}
+
+void cancelarHilo(int posicion)
+{
+    int numeroPartida = clients[posicion].numeroDePartida;
+    int resultado;
+    char log_message_buffer[94];
+    if (numeroPartida >= 0 && numeroPartida < 10)
+    {
+        resultado = pthread_cancel(hilos_partidas[numeroPartida]);
+
+        if (resultado == 0)
+        {
+            snprintf(log_message_buffer, sizeof(log_message_buffer), "El hilo en la posición %d ha sido cancelado.\n", numeroPartida);
+            log_message(LOG_INFO, log_message_buffer);
+        }
+        else
+        {
+            snprintf(log_message_buffer, sizeof(log_message_buffer), "Error al cancelar el hilo en la posición %d. Código de error: %d\n", numeroPartida, resultado);
+            log_message(LOG_ERROR, log_message_buffer);
+        }
+    }
+    else
+    {
+        // El índice está fuera de rango
+        snprintf(log_message_buffer, sizeof(log_message_buffer), "Índice fuera de rango: %d\n", numeroPartida);
+        log_message(LOG_WARNING, log_message_buffer);
     }
 }
 
@@ -137,7 +192,7 @@ void conectTwoPlayers()
         fd_set temp_fileDescriptor = read_fileDescriptors;
         if (select(max_fileDescriptor + 1, &temp_fileDescriptor, NULL, NULL, NULL) == -1)
         {
-            perror("Error en select");
+            log_message(LOG_ERROR, "Error en el socket");
         }
 
         /* El bucle `for` itera sobre los descriptores de archivo desde 0 hasta `max_fileDescriptor`. Se
@@ -154,18 +209,36 @@ void conectTwoPlayers()
                 ssize_t bytes_received;
 
                 bytes_received = recvfrom(server_socket, verification_message, sizeof(verification_message), 0, (struct sockaddr *)&client_addr, &addr_size);
+                verification_message[bytes_received] = '\0';
+
                 if (strncmp(verification_message, "clientConnect:", strlen("clientConnect:")) == 0)
                 {
+                    printf("MESSAGE %s\n", verification_message);
+
                     // Verificar que es un mensaje de confirmación
-                    const char *delimiter = " "; 
+                    const char *delimiter = " ";
                     char *nombre = verification_message + strlen("clientConnect:");
                     newClient(client_addr, nombre);
+                }
+                else if (strncmp(verification_message, "desconection", strlen("desconection")) == 0)
+                {
+                    int puertoEmisorDesconectado = ntohs(client_addr.sin_port);
+                    for (int i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        int puertoEmisor_en_clients = clients[i].client_port;
+
+                        if (puertoEmisor_en_clients == puertoEmisorDesconectado && puertoEmisor_en_clients != 0)
+                        {
+                            cancelarHilo(i);
+                        }
+                    }
                 }
                 else
                 {
                     verification_message[bytes_received] = '\0';
 
                     int puertoEmisor_en_socket = ntohs(client_addr.sin_port);
+                    char log_message_buffer[1050];
 
                     for (int i = 0; i < MAX_CLIENTS; i++)
                     {
@@ -181,21 +254,20 @@ void conectTwoPlayers()
                             {
                                 puertoReceptor = clients[i - 1].client_port;
                                 valor_jugador = clients[i - 1].socket;
-                                // printf("PUERTO_RECEPTOR 1: %d\n", puertoReceptor);
-                                // printf("VALOR JUGADOR 1: %d\n,", valor_jugador);
                                 posicionReceptor = i - 1;
                             }
                             else
                             {
                                 puertoReceptor = clients[i + 1].client_port;
                                 valor_jugador = clients[i + 1].socket;
-                                // printf("PUERTO_RECEPTOR 2: %d\n", puertoReceptor);
-                                // printf("VALOR JUGADOR 2: %d\n", valor_jugador);
                                 posicionReceptor = i + 1;
                             }
 
                             if (valor_jugador != -1)
                             {
+                                snprintf(log_message_buffer, sizeof(log_message_buffer), "Jugador %d dice: %s", puertoEmisor_en_socket, verification_message);
+
+                                log_message(LOG_INFO, log_message_buffer);
                                 startGame(client_addr, posicionReceptor, puertoReceptor, verification_message, i);
                                 break;
                             }
@@ -231,7 +303,7 @@ void defineSocket()
     server_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (server_socket == -1)
     {
-        perror("Error al crear el socket del servidor");
+        log_message(LOG_ERROR, "Error al crear el socket del servidor");
     }
 
     /* La funcion `bind()` se utiliza para asociar un socket con una direccion y un numero de puerto especificos. En
@@ -239,8 +311,7 @@ void defineSocket()
     Esto permite que el servidor escuche las conexiones entrantes en esa direccion y puerto. */
     if (bind(server_socket, res->ai_addr, res->ai_addrlen) != -1)
     {
-        printf("Socket creado correctamente. \n\n");
-        printf("SERVER SOCKETTT : %d \n", server_socket);
+        log_message(LOG_ERROR, "Server socket creado correctamente\n");
         conectTwoPlayers();
     }
 

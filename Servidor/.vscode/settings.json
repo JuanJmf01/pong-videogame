@@ -1,10 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "variablescompartidas.h": "c",
-        "manejarpelota.h": "c",
-        "serversocket.h": "c",
-        "in.h": "c",
-        "constantes.h": "c"
+        "logger.h": "c",
+        "stdlib.h": "c"
     }
 }

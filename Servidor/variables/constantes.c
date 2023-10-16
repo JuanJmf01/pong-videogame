@@ -5,7 +5,7 @@ char ADRESS_IP[16] = "localhost";
 char PORT[8] = "3930";
 
 // Escalabilidad
-int MAX_CLIENTS = 20;
+int MAX_CLIENTS = 60;
 int MAX_PARTIDAS;
 
 /* Configuracion de la ventana del juego. Las variables que se defienen en la ventana
@@ -13,7 +13,7 @@ del juego depenten totalmente del nivel estala. EL nivel escala es utilizado par
 
 int altoOriginal = 480;
 int anchoOriginal = 640;
-float nivelEscala = 1;
+float nivelEscala = 1.5;
 int anchoRaqueta = 10;
 
 int posicionHorizontalRaqueta1 = 50;
