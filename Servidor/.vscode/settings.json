@@ -1,7 +1,0 @@
-{
-    "C_Cpp.errorSquiggles": "disabled",
-    "files.associations": {
-        "unistd.h": "c",
-        "variablescompartidas.h": "c"
-    }
-}
