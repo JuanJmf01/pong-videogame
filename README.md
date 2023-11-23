@@ -2,7 +2,7 @@
 
 
 ## Descripción
-    Este proyecto es una implementacion del clasico juego de Pong. Pong es un juego de mesa en el que dos jugadores controlan paletas y tratan de golpear una pelota de un lado al otro de la pantalla sin que la pelota salga del area de juego. Teleping sockets y protololo UDP para permitir que dos jugadores se conecten y  jueguen entre si a traves de la red. Para mas informacion ver Documentacion.docx
+Este proyecto es una implementacion del clasico juego de Pong. Pong es un juego de mesa en el que dos jugadores controlan paletas y tratan de golpear una pelota de un lado al otro de la pantalla sin que la pelota salga del area de juego. Telepong sockets y protololo UDP para permitir que dos jugadores se conecten y  jueguen entre si a traves de la red. Para mas informacion ver Documentacion.docx
 
 
 ## Estructura del Proyecto
@@ -14,11 +14,11 @@
 ## Detalles Importantes
 
 ### Protocolo de Comunicación
-    El juego utiliza el protocolo UDP para la transmisión de datos entre el cliente y el servidor. Se ha diseñado un protocolo que define la estructura y el manejo de los mensajes intercambiados.
+El juego utiliza el protocolo UDP para la transmisión de datos entre el cliente y el servidor. Se ha diseñado un protocolo que define la estructura y el manejo de los mensajes intercambiados.
 
 
 ### Concurrencia
-    La concurrencia en el servidor se maneja utilizando hilos para el movimiento y la lógica de la pelota. Esto permite el correcto funcionamiento del juego para múltiples jugadores simultáneos.
+La concurrencia en el servidor se maneja utilizando hilos para el movimiento y la lógica de la pelota. Esto permite el correcto funcionamiento del juego para múltiples jugadores simultáneos.
 
 
 ### Funcionalidades Clave
@@ -30,7 +30,7 @@
 
 
 ### Compilación
-    El código del servidor se compila utilizando `gcc`, siguiendo las instrucciones proporcionadas en el archivo readme.md del servidor. Mientras que el cliente se compila siguiento las instrucciones proporcionadas en el archivo readme.md del cliente
+El código del servidor se compila utilizando `gcc`, siguiendo las instrucciones proporcionadas en el archivo readme.md del servidor. Mientras que el cliente se compila siguiento las instrucciones proporcionadas en el archivo readme.md del cliente
 
 
 ## Integrantes del Equipo
